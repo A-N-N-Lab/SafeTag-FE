@@ -30,7 +30,7 @@ const GlobalStyle = createGlobalStyle`
     align-items: flex-start;
     min-height: 100vh;
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    background-color: #e3fff2;
+    background-color: rgba(241, 241, 241, 1);
   }
 `;
 
