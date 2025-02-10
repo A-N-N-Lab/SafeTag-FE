@@ -1,5 +1,5 @@
 import React from 'react';
-import "./Footer.css"; // CSS 파일 불러오기
+import './Footer.css';
 
 const Footer = () => {
   return (
