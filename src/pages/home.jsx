@@ -9,7 +9,7 @@ import Etc from './components/Etc';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 
-function App() {
+function Home() {
   return (
     <AppContainer>
       <Header />
@@ -18,7 +18,6 @@ function App() {
       <Mgmt />
       <ArrContainer>
         {' '}
-        {/* 두 컴포넌트를 감싸는 div를 styled-component로 교체 */}
         <Mart />
         <Etc />
       </ArrContainer>
@@ -28,7 +27,7 @@ function App() {
   );
 }
 
-export default App;
+export default Home;
 
 const AppContainer = styled.div`
   width: 500px;
@@ -40,7 +39,6 @@ const AppContainer = styled.div`
   background-color: #f0f0f0;
 `;
 
-// ArrContainer 스타일 정의
 const ArrContainer = styled.div`
   display: flex;
   justify-content: space-between;
