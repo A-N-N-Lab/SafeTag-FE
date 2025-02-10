@@ -1,4 +1,4 @@
-import "./Mgmt.css";
+import './Mgmt.css';
 
 const Mgmt = () => {
   return (

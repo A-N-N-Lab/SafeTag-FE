@@ -19,7 +19,9 @@ const Navbar = () => {
     <nav className="navbar">
       <ul className="nav-list">
         {menuItems.map((item, index) => (
-          <li key={index} className={`nav-item ${activeIndex === index ? 'active' : ''}`}>
+          <li
+            key={index}
+            className={`nav-item ${activeIndex === index ? 'active' : ''}`}>
             <button onClick={() => handleClick(index)} className="nav-button">
               <img src={item.icon} alt={item.label} className="nav-icon" />
               <span>{item.label}</span>
