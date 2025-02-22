@@ -2,12 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 import Header from '../components/home/Header';
 import Otp from '../components/home/Otp';
-import Chat from './components/Chat';
-import Mgmt from './components/Mgmt';
-import Mart from './components/Mart';
-import Etc from './components/Etc';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
+import Chat from '../components/home/Chat';
+import Mgmt from '../components/home/Mgmt';
+import Mart from '../components/home/Mart';
+import Etc from '../components/home/Etc';
+import Navbar from '../components/home/Navbar';
+import Footer from "../components/home/Footer";
 
 function Home() {
   return (
