@@ -1,20 +1,67 @@
-import './Mgmt.css';
+import React from 'react';
+import styled from 'styled-components';
+
+const MgmtContainer = styled.div`
+  background-color: #ffffff; 
+  border: 1px solid #ffffff;
+  border-radius: 10px;
+  padding: 30px; 
+  text-align: left; 
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+  width: 380px;
+  height: 150px; 
+  margin: 20px auto;
+`;
+
+const Title = styled.h2`
+  color: rgb(0, 0, 0);
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+`;
+
+const MgmtButton = styled.button`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 10px;
+  padding: 5px;
+  border: none; 
+  border-radius: 10px; 
+  background-color: #ffffff; 
+  color: rgb(0, 0, 0);
+  cursor: pointer; 
+  transition: background-color 0.3s; 
+
+  &:hover {
+    background-color: #d5d5d5;
+  }
+`;
+
+const ButtonIcon = styled.img`
+  width: 30px;
+  height: 30px;
+  margin-bottom: 5px;
+`;
 
 const Mgmt = () => {
   return (
-    <div className="Mgmt">
-      <h2>차량 관리</h2>
-      <div className="button-group">
-        <button className="Mgmt-button">
-          <img src="/sticker-icon.png" alt="Sticker" className="button-icon" />
+    <MgmtContainer>
+      <Title>차량 관리</Title>
+      <ButtonGroup>
+        <MgmtButton>
+          <ButtonIcon src="/sticker-icon.png" alt="Sticker" />
           스티커 발급
-        </button>
-        <button className="Mgmt-button">
-          <img src="/auth-icon.png" alt="Auth" className="button-icon" />
+        </MgmtButton>
+        <MgmtButton>
+          <ButtonIcon src="/auth-icon.png" alt="Auth" />
           권한 인증
-        </button>
-      </div>
-    </div>
+        </MgmtButton>
+      </ButtonGroup>
+    </MgmtContainer>
   );
 };
 
