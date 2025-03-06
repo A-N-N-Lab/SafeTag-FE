@@ -4,7 +4,7 @@ import RootLayout from "./layout/root-layout";
 import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
 import StartPage from "./pages/StartPage";
-import Home from "./pages/Home";
+import Home from "./pages/home";
 import MyPage from "./components/My";
 
 function App() {
