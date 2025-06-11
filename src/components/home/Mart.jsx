@@ -28,17 +28,15 @@ const MartButton = styled.button`
   flex-direction: column;
   align-items: center;
   margin-right: 10px;
-  padding: 5px;
+  padding: 5px 10px; 
+  width: 100px;  /* 너비를 넓게 지정 */
   border: none; 
   border-radius: 10px; 
   background-color: #ffffff; 
   color: rgb(0, 0, 0);
   cursor: pointer; 
   transition: background-color 0.3s; 
-
-  &:hover {
-    background-color: #d5d5d5;
-  }
+  font-size: 14px;
 `;
 
 const ButtonIcon = styled.img`

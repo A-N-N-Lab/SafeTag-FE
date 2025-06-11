@@ -1,19 +1,25 @@
 import React from 'react';
 import styled from 'styled-components';
-import Header from '../components/home/Header';
-import Otp from '../components/home/Otp';
-import Chat from '../components/home/Chat';
-import Mgmt from '../components/home/Mgmt';
-import Mart from '../components/home/Mart';
-import Etc from '../components/home/Etc';
-import Navbar from '../components/home/Navbar';
-import Footer from "../components/home/Footer";
+import Header from '../components/Ad/Header';
+import Otp from '../components/Ad/Otp';
+import Chat from '../components/Ad/Chat';
+import Mgmt from '../components/Ad/Mgmt';
+import Mart from '../components/Ad/Mart';
+import Etc from '../components/Ad/Etc';
+import Navbar from '../components/Ad/Navbar';
+import Footer from "../components/Ad/Footer";
+import ResultPage from "../components/Ad/ResultPage";
 
-function Home() {
+function Ad() {
   return (
     <AppContainer>
       <Header />
-      <Otp />
+      <ArrContainer>
+        {' '}
+        <Otp />
+        <ResultPage />
+      </ArrContainer>
+
       <Chat />
       <Mgmt />
       <ArrContainer>
@@ -27,7 +33,7 @@ function Home() {
   );
 }
 
-export default Home;
+export default Ad;
 
 const AppContainer = styled.div`
   width: 100%;
