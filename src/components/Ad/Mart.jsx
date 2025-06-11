@@ -1,20 +1,21 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const MgmtContainer = styled.div`
+const MartContainer = styled.div`
   background-color: #ffffff; 
   border: 1px solid #ffffff;
   border-radius: 10px;
-  padding: 30px; 
+  padding: 20px; 
   text-align: left; 
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
-  width: 350px;
+  width: 200px;
   height: 150px; 
-  margin: 20px auto;
+  margin: 0px auto;
 `;
 
 const Title = styled.h2`
   color: rgb(0, 0, 0);
+  margin-bottom: 20px;
 `;
 
 const ButtonGroup = styled.div`
@@ -23,46 +24,44 @@ const ButtonGroup = styled.div`
   justify-content: flex-start;
 `;
 
-const MgmtButton = styled.button`
+const MartButton = styled.button`
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-right: 10px;
-  padding: 5px;
+  padding: 5px 10px; 
+  width: 100px;  /* 너비를 넓게 지정 */
   border: none; 
   border-radius: 10px; 
   background-color: #ffffff; 
   color: rgb(0, 0, 0);
   cursor: pointer; 
   transition: background-color 0.3s; 
-
-  &:hover {
-    background-color: #d5d5d5;
-  }
+  font-size: 14px;
 `;
 
 const ButtonIcon = styled.img`
   width: 30px;
   height: 30px;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
 `;
 
-const Mgmt = () => {
+const Mart = () => {
   return (
-    <MgmtContainer>
-      <Title>차량 관리</Title>
+    <MartContainer>
+      <Title>이벤트 탐지</Title>
       <ButtonGroup>
-        <MgmtButton>
-          <ButtonIcon src="/sticker-icon.png" alt="Sticker" />
-          스티커 발급
-        </MgmtButton>
-        <MgmtButton>
-          <ButtonIcon src="/auth-icon.png" alt="Auth" />
-          권한 인증
-        </MgmtButton>
+        <MartButton>
+          <ButtonIcon src="/cctv-icon.png" alt="receipt" />
+          CCTV
+        </MartButton>
+        <MartButton>
+          <ButtonIcon src="/cadan-icon.png" alt="card" />
+          차단기
+        </MartButton>
       </ButtonGroup>
-    </MgmtContainer>
+    </MartContainer>
   );
 };
 
-export default Mgmt;
+export default Mart;

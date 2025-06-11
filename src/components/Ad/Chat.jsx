@@ -8,7 +8,7 @@ const ChatContainer = styled.div`
   border-radius: 10px;
   padding: 10px;
   background-color: #ffffff; 
-  max-width: 350px; 
+  max-width: 370px; 
   width: 100%;
   margin: 10px auto;
 `;
