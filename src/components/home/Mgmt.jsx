@@ -52,13 +52,14 @@ const Mgmt = () => {
     <MgmtContainer>
       <Title>차량 관리</Title>
       <ButtonGroup>
-        <MgmtButton>
-          <ButtonIcon src="/sticker-icon.png" alt="Sticker" />
-          스티커 발급
-        </MgmtButton>
+        
         <MgmtButton>
           <ButtonIcon src="/auth-icon.png" alt="Auth" />
           권한 인증
+        </MgmtButton>
+        <MgmtButton>
+          <ButtonIcon src="/callcen-icon.png" alt="Callcen" /> 
+          고객센터
         </MgmtButton>
       </ButtonGroup>
     </MgmtContainer>

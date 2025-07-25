@@ -6,7 +6,7 @@ import Chat from '../components/Ad/Chat';
 import Mgmt from '../components/Ad/Mgmt';
 import Mart from '../components/Ad/Mart';
 import Etc from '../components/Ad/Etc';
-import Navbar from '../components/Ad/Navbar';
+import Navbar from '../components/home/Navbar';
 import Footer from "../components/Ad/Footer";
 import ResultPage from "../components/Ad/ResultPage";
 
