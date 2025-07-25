@@ -5,10 +5,16 @@ import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
 import StartPage from "./pages/StartPage";
 import Home from "./pages/home";
-import MyPage from "./components/My";
+import MyPage from "./pages/MyPage";
 import Ad from "./pages/Ad";
+import Auth from "./pages/Auth";
+import Sticker from "./pages/Sticker"
+import QR from "./pages/QR"
+import Navbar from './components/home/Navbar';
+
 
 function App() {
+  
   const router = createBrowserRouter([
     {
       path: "/",
@@ -28,12 +34,28 @@ function App() {
           element: <Home />,
         },
         {
-          path: "mypage",
+          path: "Mypage",
           element: <MyPage />,
         },
         {
           path: "Ad",
           element: <Ad />,
+        },
+        {
+          path: "Auth",
+          element: <Auth />,
+        },
+        {
+          path: "Sticker",
+          element: <Sticker />,
+        },
+        {
+          path: "QR",
+          element: <QR />,
+        },
+        {
+          path: "Navbar",
+          element: <Navbar />,
         },
       ],
     },
