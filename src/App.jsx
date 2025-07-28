@@ -11,7 +11,7 @@ import Auth from "./pages/Auth";
 import Sticker from "./pages/Sticker"
 import QR from "./pages/QR"
 import Navbar from './components/home/Navbar';
-
+import Chatbot from "./pages/Chatbot";
 
 function App() {
   
@@ -56,6 +56,10 @@ function App() {
         {
           path: "Navbar",
           element: <Navbar />,
+        },
+        {
+          path: "Chatbot",
+          element: <Chatbot />,
         },
       ],
     },

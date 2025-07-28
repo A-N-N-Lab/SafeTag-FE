@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 
 const MgmtContainer = styled.div`
   background-color: #ffffff; 
@@ -48,12 +49,17 @@ const ButtonIcon = styled.img`
 `;
 
 const Mgmt = () => {
+  const navigate = useNavigate();
+
+  const handleAuthClick = () => {
+    navigate('/Auth');
+  };
+
   return (
     <MgmtContainer>
       <Title>차량 관리</Title>
       <ButtonGroup>
-        
-        <MgmtButton>
+        <MgmtButton onClick={handleAuthClick}>
           <ButtonIcon src="/auth-icon.png" alt="Auth" />
           권한 인증
         </MgmtButton>
