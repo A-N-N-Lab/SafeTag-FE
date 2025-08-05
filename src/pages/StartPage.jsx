@@ -1,8 +1,8 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
 
-import Logo from '../assets/mainLogo.png';
+import Logo from "../assets/mainLogo.png";
 
 const StartPage = () => {
   const navigate = useNavigate();
@@ -11,23 +11,23 @@ const StartPage = () => {
     <Container>
       <Content>
         <Title>
-          <div>내 차 관리, </div>
-          <div>이제 안전해질 거예요</div>
+          내 차 관리, <br />
+          이제 안전해질 거예요
         </Title>
         <Subtitle>지금 세이프태그에 내 차를 등록해보세요</Subtitle>
 
         <Image src={Logo} alt="메인 로고" />
 
-        <StartButton onClick={() => navigate('/signup')}>시작하기</StartButton>
+        <StartButton onClick={() => navigate("/signup")}>시작하기</StartButton>
 
         <LoginText>
-          이미 사용중이신가요?{' '}
-          <LoginLink onClick={() => navigate('/login')}>로그인</LoginLink>
+          이미 사용중이신가요?{" "}
+          <LoginLink onClick={() => navigate("/login")}>로그인</LoginLink>
         </LoginText>
 
         <FooterText>
-          <div>서비스 시작 시 서비스 이용약관 및 </div>
-          <div>개인정보처리방침 동의로 간주됩니다.</div>
+          서비스 시작 시 서비스 이용약관 및 <br />
+          개인정보처리방침 동의로 간주됩니다.
         </FooterText>
       </Content>
     </Container>

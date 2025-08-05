@@ -38,7 +38,7 @@ function App() {
           element: <MyPage />,
         },
         {
-          path: "Ad",
+          path: "ad",
           element: <Ad />,
         },
         {

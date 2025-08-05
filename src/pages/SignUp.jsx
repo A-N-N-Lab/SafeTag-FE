@@ -1,26 +1,57 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import React, { useState } from "react";
+import styled from "styled-components";
+import axios from "axios";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
-    id: '',
-    password: '',
-    confirmPassword: '',
-    email: '',
-    name: '',
-    gender: '여자',
-    phone: '',
+    id: "",
+    password: "",
+    confirmPassword: "",
+    email: "",
+    name: "",
+    gender: "여자",
+    phone: "",
   });
 
   // 입력값 변경 핸들러
   const handleChange = (e) => {
-    setFormData({ ...FormData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 회원가입 버튼 클릭시 콘솔 출력
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('회원가입 데이터:', formData);
+
+    // 비밀번호 확인 등 유효성 검사
+    if (formData.password !== formData.confirmPassword) {
+      alert("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
+    try {
+      // API 요청
+      const response = await axios.post(
+        "http://localhost:8081/api/user/signup",
+        {
+          username: formData.id,
+          password: formData.password,
+          email: formData.email,
+          name: formData.name,
+          gender: formData.gender,
+          phone: formData.phone,
+        }
+      );
+
+      console.log("회원가입 성공:", response.data);
+      alert("회원가입 성공!");
+      // 성공 후 페이지 이동 또는 사용자에게 안내
+    } catch (error) {
+      console.error(
+        "회원가입 실패:",
+        error.response ? error.response.data : error.message
+      );
+      alert("회원가입에 실패했습니다.");
+    }
   };
 
   return (
@@ -33,7 +64,7 @@ const SignUp = () => {
           name="id"
           value={formData.id}
           onChange={handleChange}
-          palceholer="아이디를 입력하세요."
+          placeholder="아이디를 입력하세요."
         />
 
         <Label>비밀번호</Label>
@@ -77,7 +108,8 @@ const SignUp = () => {
             <Select
               name="gender"
               value={formData.gender}
-              onChange={handleChange}>
+              onChange={handleChange}
+            >
               <option value="여자">여자</option>
               <option value="남자">남자</option>
             </Select>
