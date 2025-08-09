@@ -1,11 +1,15 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import styled from "styled-components";
-
 import Logo from "../assets/mainLogo.png";
 
 const StartPage = () => {
   const navigate = useNavigate();
+  const authed = !!localStorage.getItem("access_token");
+
+  useEffect(() => {
+    if (authed) navigate("/main", { replace: true });
+  }, [authed, navigate]);
 
   return (
     <Container>
@@ -18,7 +22,9 @@ const StartPage = () => {
 
         <Image src={Logo} alt="메인 로고" />
 
-        <StartButton onClick={() => navigate("/signup")}>시작하기</StartButton>
+        <StartButton onClick={() => navigate(authed ? "/main" : "/signup")}>
+          시작하기
+        </StartButton>
 
         <LoginText>
           이미 사용중이신가요?{" "}
