@@ -13,6 +13,8 @@ import QR from "./pages/QR";
 import Navbar from "./components/home/Navbar";
 // import Chatbot from "./pages/Chatbot";
 import LoginPage from "./pages/LoginPage";
+import { ProtectedRoute, PublicOnlyRoute } from "./routes/helpers";
+import Logout from "./pages/Logout";
 
 function App() {
   const router = createBrowserRouter([
@@ -23,15 +25,27 @@ function App() {
       children: [
         {
           index: true,
-          element: <StartPage />,
+          element: (
+            <PublicOnlyRoute>
+              <StartPage />
+            </PublicOnlyRoute>
+          ),
         },
         {
           path: "signup",
-          element: <SignUp />,
+          element: (
+            <PublicOnlyRoute>
+              <SignUp />
+            </PublicOnlyRoute>
+          ),
         },
         {
           path: "main",
-          element: <Home />,
+          element: (
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          ),
         },
         {
           path: "Mypage",
@@ -59,7 +73,15 @@ function App() {
         },
         {
           path: "login",
-          element: <LoginPage />,
+          element: (
+            <PublicOnlyRoute>
+              <LoginPage />
+            </PublicOnlyRoute>
+          ),
+        },
+        {
+          path: "logout",
+          element: <Logout />,
         },
         // {
         //   path: "Chatbot",

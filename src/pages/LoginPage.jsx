@@ -15,7 +15,7 @@ const LoginPage = () => {
       alert("로그인 성공!");
       // 토큰 저장 등 추가 로직
       localStorage.setItem("access_token", res.token);
-      navigate("/");
+      navigate("/main", { replace: true });
     } catch (err) {
       alert("로그인 실패! 아이디 또는 비밀번호를 확인해주세요.");
     }
