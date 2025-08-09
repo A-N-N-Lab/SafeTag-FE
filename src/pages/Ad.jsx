@@ -1,12 +1,12 @@
-import React from 'react';
-import styled from 'styled-components';
-import Header from '../components/Ad/Header';
-import Otp from '../components/Ad/Otp';
-import Chat from '../components/Ad/Chat';
-import Mgmt from '../components/Ad/Mgmt';
-import Mart from '../components/Ad/Mart';
-import Etc from '../components/Ad/Etc';
-import Navbar from '../components/home/Navbar';
+import React from "react";
+import styled from "styled-components";
+import Header from "../components/Ad/Header";
+import Otp from "../components/Ad/Otp";
+import Chat from "../components/Ad/Chat";
+import Mgmt from "../components/Ad/Mgmt";
+import Mart from "../components/Ad/Mart";
+import Etc from "../components/Ad/Etc";
+import Navbar from "../components/Ad/Navbar";
 import Footer from "../components/Ad/Footer";
 import ResultPage from "../components/Ad/ResultPage";
 
@@ -15,7 +15,7 @@ function Ad() {
     <AppContainer>
       <Header />
       <ArrContainer>
-        {' '}
+        {" "}
         <Otp />
         <ResultPage />
       </ArrContainer>
@@ -23,7 +23,7 @@ function Ad() {
       <Chat />
       <Mgmt />
       <ArrContainer>
-        {' '}
+        {" "}
         <Mart />
         <Etc />
       </ArrContainer>
@@ -42,7 +42,9 @@ const AppContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background-color: #f0f0f0;
+  max-width: 393px;
+  margin: 0 auto;
+  background-color: #ffffff;
 `;
 
 const ArrContainer = styled.div`
@@ -50,4 +52,3 @@ const ArrContainer = styled.div`
   justify-content: space-between;
   margin-top: 20px;
 `;
-

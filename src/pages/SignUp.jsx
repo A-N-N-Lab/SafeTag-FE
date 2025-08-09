@@ -1,26 +1,47 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import React, { useState } from "react";
+import styled from "styled-components";
+import { signUp } from "../api/user";
+import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    id: '',
-    password: '',
-    confirmPassword: '',
-    email: '',
-    name: '',
-    gender: '여자',
-    phone: '',
+    username: "",
+    password1: "",
+    password2: "",
+    email: "", // 서버에서 안 써도 그냥 같이 보낼 수 있음(무시됨)
+    name: "",
+    gender: "FEMALE", // 오타 수정
+    birthDate: "", // YYYY-MM-DD
+    phoneNum: "",
+    address: "",
   });
 
-  // 입력값 변경 핸들러
   const handleChange = (e) => {
-    setFormData({ ...FormData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 회원가입 버튼 클릭시 콘솔 출력
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('회원가입 데이터:', formData);
+
+    if (formData.password1 !== formData.password2) {
+      alert("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+    if (!formData.birthDate || !formData.address) {
+      alert("생년월일/주소를 입력해주세요");
+      return;
+    }
+
+    try {
+      const res = await signUp(formData);
+      alert("회원가입 성공!");
+      navigate("/login");
+    } catch (err) {
+      console.error("회원가입 실패:", err.response?.data || err.message);
+      alert(err.response?.data || "회원가입에 실패했습니다.");
+    }
   };
 
   return (
@@ -30,24 +51,24 @@ const SignUp = () => {
         <Label>아이디</Label>
         <Input
           type="text"
-          name="id"
-          value={formData.id}
+          name="username"
+          value={formData.username}
           onChange={handleChange}
-          palceholer="아이디를 입력하세요."
+          placeholder="아이디를 입력하세요."
         />
 
         <Label>비밀번호</Label>
         <Input
           type="password"
-          name="password"
-          value={formData.password}
+          name="password1"
+          value={formData.password1}
           onChange={handleChange}
           placeholder="비밀번호를 입력하세요."
         />
         <Input
           type="password"
-          name="confirmPassword"
-          value={formData.confirmPassword}
+          name="password2"
+          value={formData.password2}
           onChange={handleChange}
           placeholder="비밀번호를 확인하세요."
         />
@@ -77,9 +98,10 @@ const SignUp = () => {
             <Select
               name="gender"
               value={formData.gender}
-              onChange={handleChange}>
-              <option value="여자">여자</option>
-              <option value="남자">남자</option>
+              onChange={handleChange}
+            >
+              <option value="FEMALE">여자</option>
+              <option value="MALE">남자</option>
             </Select>
           </Column>
         </Row>
@@ -87,10 +109,27 @@ const SignUp = () => {
         <Label>전화번호</Label>
         <Input
           type="text"
-          name="phone"
-          value={formData.phone}
+          name="phoneNum"
+          value={formData.phoneNum}
           onChange={handleChange}
-          placeholder="전화번호를 입력하세요."
+          placeholder="010-1234-5678"
+        />
+
+        <Label>생년월일</Label>
+        <Input
+          type="date"
+          name="birthDate"
+          value={formData.birthDate}
+          onChange={handleChange}
+        />
+
+        <Label>주소</Label>
+        <Input
+          type="text"
+          name="address"
+          value={formData.address}
+          onChange={handleChange}
+          placeholder="주소를 입력하세요."
         />
 
         <Button type="submit">회원가입</Button>
@@ -101,6 +140,7 @@ const SignUp = () => {
 
 export default SignUp;
 
+/* styled-components (outline 오타도 수정 권장) */
 const Container = styled.div`
   width: 100%;
   max-width: 393px;
@@ -109,25 +149,21 @@ const Container = styled.div`
   text-align: center;
   background-color: white;
 `;
-
 const Title = styled.h2`
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 20px;
 `;
-
 const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 13px;
 `;
-
 const Label = styled.label`
   text-align: left;
   font-weight: 600;
   font-size: 14px;
 `;
-
 const Input = styled.input`
   width: 100%;
   padding: 12px;
@@ -135,15 +171,13 @@ const Input = styled.input`
   border: 1px solid #ccc;
   border-radius: 10px;
   background-color: #f8f8f8;
-  outlone: none;
+  outline: none;
   transition: all 0.2s ease-in-out;
-
   &:focus {
     border: 1px solid black;
     background-color: white;
   }
 `;
-
 const Select = styled.select`
   width: 100%;
   padding: 12px;
@@ -152,17 +186,14 @@ const Select = styled.select`
   border-radius: 10px;
   background-color: white;
 `;
-
 const Row = styled.div`
   display: flex;
   justify-content: space-between;
   gap: 10px;
 `;
-
 const Column = styled.div`
   width: 48%;
 `;
-
 const Button = styled.button`
   width: 100%;
   padding: 14px;
@@ -173,7 +204,6 @@ const Button = styled.button`
   border-radius: 10px;
   cursor: pointer;
   margin-top: 10px;
-
   &:hover {
     background-color: #333;
   }
