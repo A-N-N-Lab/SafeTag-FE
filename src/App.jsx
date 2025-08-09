@@ -49,7 +49,11 @@ function App() {
         },
         {
           path: "Mypage",
-          element: <MyPage />,
+          element: (
+            <ProtectedRoute>
+              <MyPage />
+            </ProtectedRoute>
+          ),
         },
         {
           path: "ad",

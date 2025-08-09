@@ -1,13 +1,22 @@
 import { api } from "./index";
 
-export interface MyPageForm {
+export interface MyPageResponse {
   name: string;
   email: string;
-  phone: string;
+  gentder: string;
+  phoneNum: string;
+  birthDate: string;
   carNumber: string;
-  apartmentInfo: string;
-  permission: string;
+  address: string;
+  company: string;
 }
+export type MyPageUpdateRequest = Partial<
+  Pick<
+    MyPageResponse,
+    "name" | "phoneNum" | "carNumber" | "address" | "company"
+  >
+>;
 
-export const getMyPage = () => api.get("/mypage");
-export const updateMyPage = (data: MyPageForm) => api.put("/mypage/edit", data);
+export const getMyPage = () => api.get<MyPageResponse>("/mypage");
+export const updateMyPage = (data: MyPageUpdateRequest) =>
+  api.put("/mypage/edit", data);
