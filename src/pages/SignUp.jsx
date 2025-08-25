@@ -1,27 +1,33 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { signUp } from "../api/user";
-import { useNavigate } from "react-router-dom";
+import { signUpUser } from "../api/user";
+import { signUpAdmin } from "../api/admin";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
-const SignUp = () => {
+const SignUp = ({ mode = "user" }) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isAdmin = mode === "admin" || searchParams.get("type") === "admin";
   const [formData, setFormData] = useState({
     username: "",
     password1: "",
     password2: "",
-    email: "", // 서버에서 안 써도 그냥 같이 보낼 수 있음(무시됨)
+    email: "",
     name: "",
-    gender: "FEMALE", // 오타 수정
+    gender: "FEMALE",
     birthDate: "", // YYYY-MM-DD
     phoneNum: "",
-    address: "",
+    address: "", // 일반 사용자 전용
+    company: "", // 관리자 전용
   });
 
+  // 입력값 변경
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // 제출
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -29,13 +35,53 @@ const SignUp = () => {
       alert("비밀번호가 일치하지 않습니다.");
       return;
     }
-    if (!formData.birthDate || !formData.address) {
-      alert("생년월일/주소를 입력해주세요");
+    if (!formData.birthDate) {
+      alert("생년월일을 입력해주세요");
       return;
+    }
+    if (isAdmin) {
+      if (!formData.company) {
+        alert("회사(소속)를 입력해주세요");
+        return;
+      }
+    } else {
+      if (!formData.address) {
+        alert("주소를 입력해주세요");
+        return;
+      }
     }
 
     try {
-      const res = await signUp(formData);
+      if (isAdmin) {
+        // 관리자 회원가입
+        const body = {
+          name: formData.name,
+          username: formData.username,
+          password1: formData.password1,
+          password2: formData.password2,
+          phoneNum: formData.phoneNum,
+          birthDate: formData.birthDate,
+          gender: formData.gender,
+          company: formData.company,
+          email: formData.email || undefined,
+        };
+        await signUpAdmin(body);
+      } else {
+        // 일반 사용자 회원가입
+        const body = {
+          name: formData.name,
+          username: formData.username,
+          password1: formData.password1,
+          password2: formData.password2,
+          phoneNum: formData.phoneNum,
+          birthDate: formData.birthDate,
+          gender: formData.gender,
+          address: formData.address,
+          email: formData.email || undefined,
+        };
+        await signUpUser(body);
+      }
+
       alert("회원가입 성공!");
       navigate("/login");
     } catch (err) {
@@ -46,7 +92,7 @@ const SignUp = () => {
 
   return (
     <Container>
-      <Title>회원가입</Title>
+      <Title>{isAdmin ? "관리자 회원가입" : "회원가입"}</Title>
       <Form onSubmit={handleSubmit}>
         <Label>아이디</Label>
         <Input
@@ -123,16 +169,32 @@ const SignUp = () => {
           onChange={handleChange}
         />
 
-        <Label>주소</Label>
-        <Input
-          type="text"
-          name="address"
-          value={formData.address}
-          onChange={handleChange}
-          placeholder="주소를 입력하세요."
-        />
+        {/* 일반/관리자 분기 필드 */}
+        {!isAdmin ? (
+          <>
+            <Label>주소</Label>
+            <Input
+              type="text"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              placeholder="주소를 입력하세요."
+            />
+          </>
+        ) : (
+          <>
+            <Label>회사(소속)</Label>
+            <Input
+              type="text"
+              name="company"
+              value={formData.company}
+              onChange={handleChange}
+              placeholder="회사(소속)을 입력하세요."
+            />
+          </>
+        )}
 
-        <Button type="submit">회원가입</Button>
+        <Button type="submit">{isAdmin ? "관리자 가입" : "회원가입"}</Button>
       </Form>
     </Container>
   );
@@ -140,7 +202,7 @@ const SignUp = () => {
 
 export default SignUp;
 
-/* styled-components (outline 오타도 수정 권장) */
+/* styled-components */
 const Container = styled.div`
   width: 100%;
   max-width: 393px;

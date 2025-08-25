@@ -1,6 +1,6 @@
 import { api } from "./index";
 
-export interface UserSignUpReq {
+export interface AdminSignUpReq {
   name: string;
   username: string;
   password1: string;
@@ -8,7 +8,7 @@ export interface UserSignUpReq {
   phoneNum: string;
   birthDate: string; // YYYY-MM-DD
   gender: "MALE" | "FEMALE";
-  address: string;
+  company: string;
   email?: string;
 }
-export const signUpUser = (d: UserSignUpReq) => api.post("/user/signup", d);
+export const signUpAdmin = (d: AdminSignUpReq) => api.post("/admin/signup", d);

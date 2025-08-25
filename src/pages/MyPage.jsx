@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import Navbar from "../components/home/Navbar";
+// import Navbar from "../components/NavBar/Navbar";
 import { useNavigate } from "react-router-dom";
 import { getMyPage, updateMyPage } from "../api/mypage";
 
@@ -143,7 +143,7 @@ const Mypage = () => {
       </LogoutLink>
 
       <BottomSpacer />
-      <Navbar />
+      {/* <Navbar /> */}
     </Wrap>
   );
 };

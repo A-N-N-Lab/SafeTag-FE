@@ -22,7 +22,9 @@ const StartPage = () => {
 
         <Image src={Logo} alt="메인 로고" />
 
-        <StartButton onClick={() => navigate(authed ? "/main" : "/signup")}>
+        <StartButton
+          onClick={() => navigate(authed ? "/main" : "/signup/select")}
+        >
           시작하기
         </StartButton>
 

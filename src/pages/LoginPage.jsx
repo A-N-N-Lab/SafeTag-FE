@@ -47,7 +47,7 @@ const LoginPage = () => {
         <Divider>|</Divider>
         <span>비밀번호 찾기</span>
         <Divider>|</Divider>
-        <span onClick={() => navigate("/signup")}>회원가입</span>
+        <span onClick={() => navigate("/signup/select")}>회원가입</span>
       </BottomLinks>
     </Container>
   );
