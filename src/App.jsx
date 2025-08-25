@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import RootLayout from "./layout/root-layout";
 
 import SignUp from "./pages/SignUp";
+import SignupSelect from "./pages/SignupSelect";
 import NotFound from "./pages/NotFound";
 import StartPage from "./pages/StartPage";
 import Home from "./pages/home";
@@ -10,8 +11,7 @@ import Ad from "./pages/Ad";
 import Auth from "./pages/Auth";
 import Sticker from "./pages/Sticker";
 import QR from "./pages/QR";
-import Navbar from "./components/home/Navbar";
-// import Chatbot from "./pages/Chatbot";
+// import Chatbot from "./pages/Chat";
 import LoginPage from "./pages/LoginPage";
 import { ProtectedRoute, PublicOnlyRoute } from "./routes/helpers";
 import Logout from "./pages/Logout";
@@ -31,11 +31,28 @@ function App() {
             </PublicOnlyRoute>
           ),
         },
+        // 선택 페이지
         {
-          path: "signup",
+          path: "signup/select",
           element: (
             <PublicOnlyRoute>
-              <SignUp />
+              <SignupSelect />
+            </PublicOnlyRoute>
+          ),
+        },
+        {
+          path: "signup/user",
+          element: (
+            <PublicOnlyRoute>
+              <SignUp mode="user" />
+            </PublicOnlyRoute>
+          ),
+        },
+        {
+          path: "signup/admin",
+          element: (
+            <PublicOnlyRoute>
+              <SignUp mode="admin" />
             </PublicOnlyRoute>
           ),
         },
@@ -56,25 +73,22 @@ function App() {
           ),
         },
         {
-          path: "ad",
+          path: "admin",
           element: <Ad />,
         },
         {
-          path: "Auth",
+          path: "auth",
           element: <Auth />,
         },
         {
-          path: "Sticker",
+          path: "sticker",
           element: <Sticker />,
         },
         {
-          path: "QR",
+          path: "qr",
           element: <QR />,
         },
-        {
-          path: "Navbar",
-          element: <Navbar />,
-        },
+
         {
           path: "login",
           element: (
@@ -89,7 +103,7 @@ function App() {
         },
         // {
         //   path: "Chatbot",
-        //   element: <Chatbot />,
+        //   element: <Chatbot/>,
         // },
       ],
     },

@@ -6,11 +6,17 @@ import Chat from "../components/Ad/Chat";
 import Mgmt from "../components/Ad/Mgmt";
 import Mart from "../components/Ad/Mart";
 import Etc from "../components/Ad/Etc";
-import Navbar from "../components/Ad/Navbar";
-import Footer from "../components/Ad/Footer";
+// import Navbar from "../components/NavBar/Navbar";
+// import Footer from "../components/Ad/Footer";
 import ResultPage from "../components/Ad/ResultPage";
 
 function Ad() {
+  const items = [
+    { label: "Home", icon: "/menu1.png" },
+    { label: "menu2", icon: "/menu2.png" },
+    { label: "menu3", icon: "/menu3.png" },
+    { label: "Mypage", icon: "/menu4.png" },
+  ];
   return (
     <AppContainer>
       <Header />
@@ -27,8 +33,8 @@ function Ad() {
         <Mart />
         <Etc />
       </ArrContainer>
-      <Footer />
-      <Navbar />
+      {/* <Footer /> */}
+      {/* <Navbar /> */}
     </AppContainer>
   );
 }

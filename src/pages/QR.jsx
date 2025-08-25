@@ -1,6 +1,62 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import Navbar from '../components/home/Navbar';
+import React, { useState, useEffect } from "react";
+import styled from "styled-components";
+// import Navbar from "../components/NavBar/Navbar";
+
+const QR = () => {
+  const totalTime = 60; // 5분(초)
+  const [remainingTime, setRemainingTime] = useState(totalTime);
+  const [progressWidth, setProgressWidth] = useState(100);
+
+  useEffect(() => {
+    if (remainingTime <= 0) return;
+    const interval = setInterval(() => {
+      setRemainingTime((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [remainingTime]);
+
+  useEffect(() => {
+    setProgressWidth((remainingTime / totalTime) * 100);
+  }, [remainingTime]);
+  useEffect(() => {
+    if (remainingTime === 0) {
+      handleRefresh();
+    }
+  }, [remainingTime]);
+
+  const handleRefresh = () => {
+    setRemainingTime(totalTime);
+  };
+
+  return (
+    <Container>
+      {/* 제목 (좌우 여백 포함) */}
+      <TitleBox>QR</TitleBox>
+
+      {/* 차량 번호와 큐알*/}
+      <ProfileSection>
+        <ProfileTitle>123가 1234</ProfileTitle>
+        <img
+          src="/myQR.png"
+          alt="내 큐알"
+          style={{ width: "200px", marginBottom: "20px" }}
+        />
+      </ProfileSection>
+
+      {/* 시간 흐름 모양 */}
+      <OvalContainer>
+        <ProgressBar width={progressWidth} />
+      </OvalContainer>
+      <RemainingTimeText>남은시간: {remainingTime}초</RemainingTimeText>
+
+      {/* 버튼 */}
+      <RetryButton onClick={handleRefresh}>QR 재생성</RetryButton>
+      {/* <Navbar /> */}
+    </Container>
+  );
+};
+
+export default QR;
 
 // 컨테이너
 const Container = styled.div`
@@ -84,7 +140,7 @@ const RetryButton = styled.button`
   padding: 12px 24px; /* 더 여유롭게 조절 */
   font-size: 16px;
   cursor: pointer;
-  background-color: #6B89B9; /* 파랑색 */
+  background-color: #6b89b9; /* 파랑색 */
   color: #fff; /* 하얀색 글씨 */
   border: none;
   border-radius: 8px; /* 둥근 모서리 */
@@ -95,55 +151,3 @@ const RetryButton = styled.button`
     background-color: rgba(43, 94, 148, 1); /* hover 시 색상 변경 */
   }
 `;
-
-const QR = () => {
-  const totalTime = 60; // 5분(초)
-  const [remainingTime, setRemainingTime] = useState(totalTime);
-  const [progressWidth, setProgressWidth] = useState(100);
-
-  useEffect(() => {
-    if (remainingTime <= 0) return;
-    const interval = setInterval(() => {
-      setRemainingTime((prev) => prev - 1);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [remainingTime]);
-
-  useEffect(() => {
-    setProgressWidth((remainingTime / totalTime) * 100);
-  }, [remainingTime]);
-  useEffect(() => {
-  if (remainingTime === 0) {
-    handleRefresh();
-  }
-}, [remainingTime]);
-
-  const handleRefresh = () => {
-    setRemainingTime(totalTime);
-  };
-
-  return (
-    <Container>
-      {/* 제목 (좌우 여백 포함) */}
-      <TitleBox>QR</TitleBox>
-
-      {/* 차량 번호와 큐알*/}
-      <ProfileSection>
-        <ProfileTitle>123가 1234</ProfileTitle>
-        <img src="/myQR.png" alt="내 큐알" style={{ width: '200px', marginBottom: '20px' }} />
-      </ProfileSection>
-
-      {/* 시간 흐름 모양 */}
-      <OvalContainer>
-        <ProgressBar width={progressWidth} />
-      </OvalContainer>
-      <RemainingTimeText>남은시간: {remainingTime}초</RemainingTimeText>
-
-      {/* 버튼 */}
-      <RetryButton onClick={handleRefresh}>QR 재생성</RetryButton>
-    <Navbar />  
-    </Container>
-  );
-};
-
-export default QR;
