@@ -79,7 +79,7 @@
 import React from "react";
 import { Outlet, useLocation, matchPath } from "react-router-dom";
 import NavBar from "../components/NavBar/Navbar";
-import Footer from "../components/Ad/Footer";
+import Footer from "../components/Footer/Footer";
 import styled, { createGlobalStyle } from "styled-components";
 
 const NAV_HEIGHT = 64;

@@ -1,13 +1,14 @@
 import React from "react";
 import styled from "styled-components";
-import Header from "../components/home/Header";
+import Header from "../components/Header/Header";
 import Otp from "../components/home/Otp";
 import Chat from "../components/home/Chat";
 import Mgmt from "../components/home/Mgmt";
 import Mart from "../components/home/Mart";
 import Etc from "../components/home/Etc";
 import Navbar from "../components/NavBar/Navbar";
-// import Footer from "../components/home/Footer";
+import Footer from "../components/Footer/Footer";
+
 
 function Home() {
   const items = [
@@ -42,7 +43,7 @@ function Home() {
         <Mart />
         <Etc />
       </ArrContainer>
-      {/* <Footer /> */}
+      <Footer />
       <Navbar items={items} />
       <div style={{ height: 72 }} /> {/* 하단바 가림 방지 여백 */}
     </AppContainer>

@@ -1,20 +1,20 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import RootLayout from "./layout/root-layout";
 
-import SignUp from "./pages/SignUp";
-import SignupSelect from "./pages/SignupSelect";
-import NotFound from "./pages/NotFound";
+import SignUp from "./pages/SignUpPage";
+import SignupSelect from "./pages/SignupSelectPage";
+import NotFound from "./pages/NotFoundPage";
 import StartPage from "./pages/StartPage";
-import Home from "./pages/home";
+import Home from "./pages/homePage";
 import MyPage from "./pages/MyPage";
-import Ad from "./pages/Ad";
-import Auth from "./pages/Auth";
-import Sticker from "./pages/Sticker";
-import QR from "./pages/QR";
-// import Chatbot from "./pages/Chat";
+import Auth from "./pages/AuthPage";
+import Sticker from "./pages/StickerPage";
+import QR from "./pages/QRPage";
+import Chatbot from "./pages/ChatbotPage";
 import LoginPage from "./pages/LoginPage";
 import { ProtectedRoute, PublicOnlyRoute } from "./routes/helpers";
-import Logout from "./pages/Logout";
+import Logout from "./pages/LogoutPage";
+import Adminpage from "./pages/Adminpage";
 
 function App() {
   const router = createBrowserRouter([
@@ -74,7 +74,7 @@ function App() {
         },
         {
           path: "admin",
-          element: <Ad />,
+          element: <Adminpage />,
         },
         {
           path: "auth",
@@ -101,10 +101,10 @@ function App() {
           path: "logout",
           element: <Logout />,
         },
-        // {
-        //   path: "Chatbot",
-        //   element: <Chatbot/>,
-        // },
+       {
+         path: "Chatbot",
+         element: <Chatbot/>,
+        },
       ],
     },
   ]);
