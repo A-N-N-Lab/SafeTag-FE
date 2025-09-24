@@ -1,6 +1,18 @@
 import React from "react";
 import styled from "styled-components";
 
+const ChatBox = () => {
+  return (
+    <ChatContainer>
+      <Icon src="/search-icon.png" alt="Search" /> {""}
+      <ChatInput className="chat-input" placeholder="챗봇에게 물어보세요!" />
+      <Icon src="/mic-icon.png" alt="Microphone" /> {""}
+    </ChatContainer>
+  );
+};
+
+export default ChatBox;
+
 const ChatContainer = styled.div`
   display: flex;
   align-items: center;
@@ -27,15 +39,3 @@ const Icon = styled.img`
   width: 25px;
   height: 25px;
 `;
-
-const Chat = () => {
-  return (
-    <ChatContainer>
-      <Icon src="/search-icon.png" alt="Search" /> {""}
-      <ChatInput className="chat-input" placeholder="챗봇에게 물어보세요!" />
-      <Icon src="/mic-icon.png" alt="Microphone" /> {""}
-    </ChatContainer>
-  );
-};
-
-export default Chat;

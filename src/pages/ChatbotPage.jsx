@@ -6,12 +6,13 @@ export default function ChatbotUI({
   placeholder = "메시지를 입력하세요… (Enter 전송, Shift+Enter 줄바꿈)",
   height = 640,
   initialMessages = [
-    { id: "sys-hello", role: "assistant", text: "무엇을 도와드릴까요?" }
+    { id: "sys-hello", role: "assistant", text: "무엇을 도와드릴까요?" },
   ],
-  onSend = async (t) => new Promise((resolve) => setTimeout(() => resolve(`Echo: ${t}`), 600)),
+  onSend = async (t) =>
+    new Promise((resolve) => setTimeout(() => resolve(`Echo: ${t}`), 600)),
   showHeader = true,
   showFooter = true,
-  borderless = false
+  borderless = false,
 }) {
   const [messages, setMessages] = useState(() => initialMessages);
   const [input, setInput] = useState("");
@@ -49,7 +50,7 @@ export default function ChatbotUI({
       id: `u-${Date.now()}`,
       role: "user",
       text,
-      time: timeNow()
+      time: timeNow(),
     };
 
     setMessages((prev) => [...prev, userMsg]);
@@ -59,7 +60,8 @@ export default function ChatbotUI({
 
     try {
       const reply = await onSend(text);
-      const assistantText = typeof reply === "string" ? reply : reply?.text || "";
+      const assistantText =
+        typeof reply === "string" ? reply : reply?.text || "";
       const isError = typeof reply === "object" && reply?.error === true;
 
       setMessages((prev) => [
@@ -68,8 +70,8 @@ export default function ChatbotUI({
           id: `a-${Date.now()}`,
           role: isError ? "error" : "assistant",
           text: assistantText || "(응답 없음)",
-          time: timeNow()
-        }
+          time: timeNow(),
+        },
       ]);
     } catch (err) {
       setMessages((prev) => [
@@ -77,10 +79,9 @@ export default function ChatbotUI({
         {
           id: `e-${Date.now()}`,
           role: "error",
-          text:
-            "응답 중 오류가 발생했어요. 네트워크 상태를 확인하거나 다시 시도해 주세요.",
-          time: timeNow()
-        }
+          text: "응답 중 오류가 발생했어요. 네트워크 상태를 확인하거나 다시 시도해 주세요.",
+          time: timeNow(),
+        },
       ]);
     } finally {
       setTyping(false);
@@ -109,7 +110,11 @@ export default function ChatbotUI({
       <List ref={listRef}>
         {messages.map((m) => (
           <MessageRow key={m.id} $right={m.role === "user"}>
-            {m.role === "user" ? <Avatar src="/safe.jpg" alt="user" /> : <Avatar src="/tag.jpg" alt="bot" />}
+            {m.role === "user" ? (
+              <Avatar src="/safe.jpg" alt="user" />
+            ) : (
+              <Avatar src="/tag.jpg" alt="bot" />
+            )}
             <Bubble
               $role={m.role}
               title={m.time ? `${m.role} · ${m.time}` : m.role}
@@ -155,11 +160,15 @@ export default function ChatbotUI({
 const Shell = styled.div`
   width: 100%;
   max-width: 820px;
-  height: ${(p) => (typeof p.style?.height === "number" ? `${p.style.height}px` : p.style?.height || "640px")};
+  height: ${(p) =>
+    typeof p.style?.height === "number"
+      ? `${p.style.height}px`
+      : p.style?.height || "640px"};
   background: #ffffff;
   border: ${(p) => (p.$borderless ? "none" : "1px solid #e8e8ef")};
   border-radius: 14px;
-  box-shadow: ${(p) => (p.$borderless ? "none" : "0 8px 30px rgba(0,0,0,0.06)")};
+  box-shadow: ${(p) =>
+    p.$borderless ? "none" : "0 8px 30px rgba(0,0,0,0.06)"};
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -206,7 +215,12 @@ const Bubble = styled.div`
   border-radius: 12px;
   white-space: pre-wrap;
   word-break: break-word;
-  color: ${(p) => (p.$role === "user" ? "#0e1222" : p.$role === "error" ? "#991b1b" : "#0b1020")};
+  color: ${(p) =>
+    p.$role === "user"
+      ? "#0e1222"
+      : p.$role === "error"
+      ? "#991b1b"
+      : "#0b1020"};
   background: ${(p) =>
     p.$role === "user"
       ? "#e7f0ff"
@@ -214,7 +228,12 @@ const Bubble = styled.div`
       ? "#fee2e2"
       : "#f4f6fb"};
   border: 1px solid
-    ${(p) => (p.$role === "error" ? "#fecaca" : p.$role === "user" ? "#c8dbff" : "#e8ebf5")};
+    ${(p) =>
+      p.$role === "error"
+        ? "#fecaca"
+        : p.$role === "user"
+        ? "#c8dbff"
+        : "#e8ebf5"};
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
 `;
 
@@ -240,8 +259,12 @@ const Dot = styled.span`
   border-radius: 50%;
   background: #9aa3b2;
   animation: ${dots} 1.2s infinite ease-in-out;
-  &:nth-child(2) { animation-delay: 0.2s; }
-  &:nth-child(3) { animation-delay: 0.4s; }
+  &:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  &:nth-child(3) {
+    animation-delay: 0.4s;
+  }
 `;
 
 const Composer = styled.div`
@@ -269,7 +292,9 @@ const TextArea = styled.textarea`
     border-color: #7da8ff;
     box-shadow: 0 0 0 3px rgba(125, 168, 255, 0.2);
   }
-  &::placeholder { color: #a3a8b7; }
+  &::placeholder {
+    color: #a3a8b7;
+  }
 `;
 
 const SendBtn = styled.button`
@@ -283,7 +308,9 @@ const SendBtn = styled.button`
   cursor: pointer;
   transition: transform 0.05s ease, box-shadow 0.2s ease, opacity 0.2s ease;
   box-shadow: 0 4px 10px rgba(15, 98, 254, 0.18);
-  &:hover { transform: translateY(-1px); }
+  &:hover {
+    transform: translateY(-1px);
+  }
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
