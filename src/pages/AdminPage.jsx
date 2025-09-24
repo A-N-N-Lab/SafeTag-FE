@@ -7,11 +7,9 @@ import Mgmt from "../components/Ad/Mgmt";
 import Mart from "../components/Ad/Mart";
 import Etc from "../components/Ad/Etc";
 import Navbar from "../components/NavBar/Navbar";
-import Footer from "../components/Footer/Footer";
 import ResultPage from "../components/Ad/ResultPage";
 
 function Adminpage() {
-
   return (
     <AppContainer>
       <Header />
