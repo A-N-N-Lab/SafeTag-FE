@@ -46,7 +46,6 @@ const HomePage = () => {
         <InfoTile title="기타" />
       </Row>
 
-      <Footer />
       <Navbar
         items={[
           {

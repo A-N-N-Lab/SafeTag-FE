@@ -14,7 +14,8 @@ import Chatbot from "./pages/ChatbotPage";
 import LoginPage from "./pages/LoginPage";
 import { ProtectedRoute, PublicOnlyRoute } from "./routes/helpers";
 import Logout from "./pages/LogoutPage";
-import Adminpage from "./pages/Adminpage";
+import Adminpage from "./pages/AdminPage";
+import ScanResultPage from "./pages/ScanResultPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -101,9 +102,13 @@ function App() {
           path: "logout",
           element: <Logout />,
         },
-       {
-         path: "Chatbot",
-         element: <Chatbot/>,
+        {
+          path: "Chatbot",
+          element: <Chatbot />,
+        },
+        {
+          path: "scan",
+          element: <ScanResultPage />,
         },
       ],
     },
