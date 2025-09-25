@@ -14,7 +14,7 @@ const SignUp = ({ mode = "user" }) => {
     password2: "",
     email: "",
     name: "",
-    gender: "FEMALE",
+    gender: "여성",
     birthDate: "", // YYYY-MM-DD
     phoneNum: "",
     address: "", // 일반 사용자 전용
@@ -146,8 +146,8 @@ const SignUp = ({ mode = "user" }) => {
               value={formData.gender}
               onChange={handleChange}
             >
-              <option value="FEMALE">여자</option>
-              <option value="MALE">남자</option>
+              <option value="여성">여자</option>
+              <option value="남성">남자</option>
             </Select>
           </Column>
         </Row>
