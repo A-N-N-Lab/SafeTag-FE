@@ -103,7 +103,7 @@ function App() {
           element: <Logout />,
         },
         {
-          path: "Chatbot",
+          path: "chatbot",
           element: <Chatbot />,
         },
         {
