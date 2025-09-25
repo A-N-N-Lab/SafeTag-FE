@@ -12,7 +12,6 @@ const SignUp = ({ mode = "user" }) => {
     username: "",
     password1: "",
     password2: "",
-    email: "",
     name: "",
     gender: "여성",
     birthDate: "", // YYYY-MM-DD
@@ -117,15 +116,6 @@ const SignUp = ({ mode = "user" }) => {
           value={formData.password2}
           onChange={handleChange}
           placeholder="비밀번호를 확인하세요."
-        />
-
-        <Label>Email</Label>
-        <Input
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          placeholder="이메일을 입력하세요."
         />
 
         <Row>
