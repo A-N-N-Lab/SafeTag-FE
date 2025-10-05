@@ -23,32 +23,59 @@ export default function ChatBox({
   const listRef = useRef(null);
   const textareaRef = useRef(null);
 
+  // --- 파일 첨부 기능 추가 START ---
+  const [selectedFile, setSelectedFile] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      // 필요시 파일이 선택되었음을 사용자에게 알리는 로직 추가
+      console.log("Selected file:", file.name);
+    }
+  };
+
+  const handleAttachmentClick = () => {
+    // 이 함수가 숨겨진 input의 클릭을 실행합니다.
+    fileInputRef.current.click();
+  };
+  // --- 파일 첨부 기능 추가 END ---
+
   useEffect(() => {
     if (!listRef.current) return;
     listRef.current.scrollTop = listRef.current.scrollHeight;
   }, [messages, typing]);
 
   const handleSend = async () => {
+    // 파일이 있거나 텍스트가 있을 때 전송 가능하도록 조건 수정
     const text = input.trim();
-    if (!text || sending) return;
+    if ((!text && !selectedFile) || sending) return;
 
-    const userMsg = { id: `u-${Date.now()}`, role: "user", text };
+    // 파일만 첨부했을 경우를 대비한 텍스트
+    const messageText = text || `파일 전송: ${selectedFile.name}`;
+    const userMsg = { id: `u-${Date.now()}`, role: "user", text: messageText };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
+    setSelectedFile(null); // 파일 상태 초기화
     setSending(true);
     setTyping(true);
 
     try {
       let content = "";
       if (typeof onSend === "function") {
-        // 페이지에서 전달한 onSend 사용
-        content = await onSend(text, [...messages, userMsg]);
+        // 페이지에서 전달한 onSend 사용 (파일도 전달하도록 확장 필요)
+        content = await onSend(text, [...messages, userMsg], selectedFile);
       } else {
-        // 폴백: 내부 API 호출
+        // 폴백: 내부 API 호출 (파일 전송 로직 추가 필요)
         const payload = [...messages, userMsg].map((m) => ({
           role: m.role,
           content: m.text ?? "",
         }));
+        // FormData를 사용해 파일과 메시지를 함께 보낼 수 있습니다.
+        // const formData = new FormData();
+        // formData.append('file', selectedFile);
+        // formData.append('messages', JSON.stringify(payload));
         const res = await postChat(payload); // { content }
         content = res?.content ?? "";
       }
@@ -126,14 +153,27 @@ export default function ChatBox({
             placeholder={placeholder}
           />
         </InputBox>
-        <SendBtn onClick={handleSend} disabled={sending || !input.trim()}>
+        
+        {/* --- 파일 첨부 JSX 추가 START --- */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          style={{ display: 'none' }} // 화면에 보이지 않도록 처리
+        />
+        {/* AttachBtn은 기존 SendBtn과 동일한 스타일을 사용하도록 가정 */}
+        <FileBtn onClick={handleAttachmentClick} disabled={sending}>
+          📁
+        </FileBtn>
+        {/* --- 파일 첨부 JSX 추가 END --- */}
+
+        <SendBtn onClick={handleSend} disabled={sending || (!input.trim() && !selectedFile)}>
           전송
         </SendBtn>
       </Footer>
     </Wrap>
   );
 }
-
 /* styled-components */
 const Wrap = styled.div`
   width: 100%;
@@ -251,16 +291,30 @@ const Textarea = styled.textarea`
   line-height: 1.4;
   font-size: 14px;
 `;
-
-const SendBtn = styled.button`
-  min-width: 72px;
+const FileBtn = styled.button`
+  min-width: 30px;
   border: none;
   border-radius: 12px;
-  background: #4e9366;
+  background: #B0BFCC;
   color: #fff;
   font-weight: 700;
   cursor: pointer;
-  padding: 0 14px;
+  padding: 0 10px;
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+`;
+
+const SendBtn = styled.button`
+  min-width: 60px;
+  border: none;
+  border-radius: 12px;
+  background: #6B89B9;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0 10px;
   &:disabled {
     opacity: 0.5;
     cursor: default;

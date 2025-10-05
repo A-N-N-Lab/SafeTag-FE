@@ -23,6 +23,14 @@ const AdminPage = () => {
     [code]
   );
 
+  // --- CCTV 모달 기능 추가 START ---
+  const [isCctvModalOpen, setIsCctvModalOpen] = useState(false);
+  const cctvStreamUrl = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
+
+  const handleOpenCctvModal = () => setIsCctvModalOpen(true);
+  const handleCloseCctvModal = () => setIsCctvModalOpen(false);
+  // --- CCTV 모달 기능 추가 END ---
+
   // 만료 카운트다운
   useEffect(() => {
     if (!expiresAt) return;
@@ -71,42 +79,12 @@ const AdminPage = () => {
     <App>
       <Header />
 
-      {/* QR 생성/표시 영역 */}
-      <Card>
-        <Title>주차 연락용 QR</Title>
-        {!code ? (
-          <PrimaryButton onClick={createQR} disabled={loading}>
-            {loading ? "생성 중..." : "QR 생성"}
-          </PrimaryButton>
-        ) : (
-          <>
-            <QRWrap>
-              <QRCodeCanvas value={scanUrl} size={260} />
-            </QRWrap>
-            <SmallText>{scanUrl}</SmallText>
-            <RowGap>
-              <SecondaryButton onClick={copyLink}>링크 복사</SecondaryButton>
-              <SecondaryButton
-                onClick={() => {
-                  setCode(null);
-                  setExpiresAt(null);
-                }}
-              >
-                초기화
-              </SecondaryButton>
-            </RowGap>
-            <ExpireText>만료까지 {leftSec}s</ExpireText>
-          </>
-        )}
-      </Card>
 
       {/* 기존 구성 유지: 필요 없으면 주석 처리 */}
       <Row>
         <QRScannerBox />
         <ResultPage />
       </Row>
-
-      <ChatBox maxWidth="370px" />
 
       <ActionRow
         title="차주에게 연락하기"
@@ -132,15 +110,28 @@ const AdminPage = () => {
         <ActionCard
           title="이벤트 탐지"
           actions={[
-            { label: "CCTV", icon: "/cctv-icon.png", onClick: () => {} },
+            { label: "CCTV", icon: "/cctv-icon.png", onClick: handleOpenCctvModal },
             { label: "차단기", icon: "/cadan-icon.png", onClick: () => {} },
           ]}
         />
         <InfoTile title="기타" />
       </Row>
 
-      {/* RootLayout에서 NavBar를 숨겼다면 여기 넣어도 OK. 중복이면 제거 */}
-      {/* <Navbar /> */}
+      
+      {/* --- CCTV 모달 JSX 추가 --- */}
+      {isCctvModalOpen && (
+          <ModalBackground onClick={handleCloseCctvModal}>
+              <ModalContent onClick={(e) => e.stopPropagation()}>
+                  <ModalHeader>
+                      <h4>CCTV 실시간 영상</h4>
+                      <CloseButton onClick={handleCloseCctvModal}>&times;</CloseButton>
+                  </ModalHeader>
+                  <VideoWrapper>
+                      <video controls autoPlay muted playsInline src={cctvStreamUrl} style={{width: '100%', height: '100%'}}></video>
+                  </VideoWrapper>
+              </ModalContent>
+          </ModalBackground>
+      )}
     </App>
   );
 };
@@ -224,3 +215,55 @@ const SecondaryButton = styled.button`
   background: #fafafa;
   cursor: pointer;
 `;
+
+// --- CCTV 모달 스타일 추가 ---
+const ModalBackground = styled.div`
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+const ModalContent = styled.div`
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+`;
+
+const ModalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  h4 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+`;
+
+const CloseButton = styled.button`
+  background: transparent;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+`;
+
+const VideoWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 Aspect Ratio */
+  background-color: #000;
+`;
+
