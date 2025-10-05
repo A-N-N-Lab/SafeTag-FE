@@ -31,8 +31,8 @@ export default function ChatbotPage() {
       <ChatBox
         title="safetag chatbot"
         height={height}
-        botAvatar="/avatars/seipi.png"
-        userAvatar="/avatars/taegi.png"
+        botAvatar="/sefe.png"
+        userAvatar="/tag.png"
         onSend={async (_text, history) => {
           try {
             const msgs = toServerMessages(history);
