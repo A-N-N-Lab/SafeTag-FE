@@ -3,17 +3,17 @@ import { api } from "./index";
 export interface MyPageResponse {
   name: string;
   email: string;
-  gentder: string;
+  gender: string;
   phoneNum: string;
   birthDate: string;
-  carNumber: string;
+  vehicleNumber: string;
   address: string;
   company: string;
 }
 export type MyPageUpdateRequest = Partial<
   Pick<
     MyPageResponse,
-    "name" | "phoneNum" | "carNumber" | "address" | "company"
+    "name" | "phoneNum" | "vehicleNumber" | "address" | "company"
   >
 >;
 
