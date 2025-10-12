@@ -9,7 +9,7 @@ import Home from "./pages/homePage";
 import MyPage from "./pages/MyPage";
 import Auth from "./pages/AuthPage";
 import Sticker from "./pages/StickerPage";
-import QR from "./pages/QRPage";
+import QRPage from "./pages/QRPage";
 import Chatbot from "./pages/ChatbotPage";
 import LoginPage from "./pages/LoginPage";
 import { ProtectedRoute, PublicOnlyRoute } from "./routes/helpers";
@@ -87,7 +87,7 @@ function App() {
         },
         {
           path: "qr",
-          element: <QR />,
+          element: <QRPage />,
         },
 
         {
@@ -108,6 +108,10 @@ function App() {
         },
         {
           path: "scan",
+          element: <ScanResultPage />,
+        },
+        {
+          path: "qr/:uuid",
           element: <ScanResultPage />,
         },
       ],

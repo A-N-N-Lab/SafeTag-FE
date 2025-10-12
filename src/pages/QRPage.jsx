@@ -1,134 +1,229 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
+import * as ZXingBrowser from "@zxing/browser";
 
-const QR = () => {
-  const totalTime = 60; // 초
-  const [remainingTime, setRemainingTime] = useState(totalTime);
-  const [nonce, setNonce] = useState(Date.now()); // 캐시 무력화용
+const QRPage = () => {
+  const videoRef = useRef(null);
+  const codeReaderRef = useRef(null);
+  const [scanning, setScanning] = useState(false);
+  const [message, setMessage] = useState("스캔 준비 완료");
+  const [secure, setSecure] = useState(true); // HTTPS 여부  아마 안 될 듯 .. ?
 
-  // 1) 타이머: 마운트 시 1개만
   useEffect(() => {
-    const id = setInterval(() => {
-      setRemainingTime((t) => (t > 0 ? t - 1 : 0));
-    }, 1000);
-    return () => clearInterval(id);
+    // HTTPS(또는 localhost)가 아니면 getUserMedia 제한 가능
+    const isLocalhost =
+      location.hostname === "localhost" || location.hostname === "127.0.0.1";
+    setSecure(window.isSecureContext || isLocalhost);
+    return () => stopScan();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 2) 진행률 계산
-  const progressWidth = useMemo(
-    () => (remainingTime / totalTime) * 100,
-    [remainingTime, totalTime]
-  );
+  const startScan = async () => {
+    if (!secure) {
+      setMessage(
+        "HTTPS 환경이 아니어서 카메라 권한이 제한될 수 있어요. 아래 '사진으로 스캔'을 사용하세요."
+      );
+      return;
+    }
+    try {
+      setMessage("카메라 권한 요청 중...");
+      const reader = new ZXingBrowser.BrowserMultiFormatReader();
+      codeReaderRef.current = reader;
 
-  // 3) 0초 되면 QR 재생성
-  useEffect(() => {
-    if (remainingTime === 0) handleRefresh();
-  }, [remainingTime]);
+      // 후면 카메라 우선
+      const devices =
+        await ZXingBrowser.BrowserCodeReader.listVideoInputDevices();
+      const backCam = devices.find((d) =>
+        /back|rear|environment/i.test(d.label)
+      );
+      const deviceId = backCam?.deviceId || devices[0]?.deviceId;
 
-  const handleRefresh = () => {
-    // TODO: 여기서 백엔드 호출해서 새로운 QR 이미지/데이터를 받아오면 진짜 재생성
-    setNonce(Date.now()); // 캐시 무력화
-    setRemainingTime(totalTime);
+      setMessage("스캔 중... QR에 맞춰주세요");
+      setScanning(true);
+
+      reader.decodeFromVideoDevice(
+        deviceId,
+        videoRef.current,
+        (result, err) => {
+          if (result) {
+            const text = result.getText?.() || result.text;
+            handleDecoded(text);
+          }
+          // err는 스캔 중 발생하는 노이즈이므로 무시 (NotFoundException 등)
+        }
+      );
+    } catch (e) {
+      console.error(e);
+      setMessage("카메라를 열 수 없어요. '사진으로 스캔'을 사용하세요.");
+      setScanning(false);
+    }
   };
 
-  // public/myQR.png 가 있어야 함
-  const qrSrc = `/myQR.png?t=${nonce}`;
+  const stopScan = () => {
+    try {
+      codeReaderRef.current?.reset?.();
+      codeReaderRef.current?.stopContinuousDecode?.();
+    } catch {}
+    // 비디오 스트림 정리
+    const stream = videoRef.current?.srcObject;
+    if (stream) {
+      stream.getTracks().forEach((t) => t.stop());
+      videoRef.current.srcObject = null;
+    }
+    setScanning(false);
+  };
+
+  const handleDecoded = (text) => {
+    stopScan();
+    setMessage(`인식됨: ${text}`);
+
+    // 디코드된 값이 http(s) URL이면 그대로 이동
+    try {
+      const u = new URL(text);
+      if (u.protocol === "http:" || u.protocol === "https:") {
+        window.location.href = text;
+        return;
+      }
+    } catch {}
+    // URL이 아니라면, SafeTag 규칙(예: uuid만 담긴 경우)에 맞춰 라우팅
+    // 예: abcdef-uuid → /qr/:uuid 로 이동
+    if (/^[a-z0-9-]{8,}$/i.test(text)) {
+      window.location.href = `/qr/${text}`;
+    }
+  };
+
+  // Fallback: 파일(사진)로 스캔
+  const onPickImage = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setMessage("이미지에서 QR 인식 중...");
+    try {
+      const url = URL.createObjectURL(file);
+      // decodeFromImageUrl은 CORS 없이 로컬 blob도 OK
+      const reader = new ZXingBrowser.BrowserQRCodeReader();
+      const result = await reader.decodeFromImageUrl(url);
+      URL.revokeObjectURL(url);
+      const text = result.getText?.() || result.text;
+      handleDecoded(text);
+    } catch (err) {
+      console.error(err);
+      setMessage("인식 실패. 사진을 다시 찍어주세요.");
+    } finally {
+      e.target.value = "";
+    }
+  };
 
   return (
-    <Container>
-      <TitleBox>QR</TitleBox>
+    <Wrap>
+      <TitleBox>QR 스캔</TitleBox>
 
-      <ProfileSection>
-        <ProfileTitle>123가 1234</ProfileTitle>
-        <img
-          src={qrSrc}
-          alt="내 큐알"
-          style={{ width: 200, marginBottom: 20 }}
+      <VideoBox>
+        <Video ref={videoRef} playsInline muted />
+        <ScanGuide />
+      </VideoBox>
+
+      <Msg>{message}</Msg>
+
+      <Buttons>
+        {!scanning ? (
+          <Btn onClick={startScan}>카메라로 스캔 시작</Btn>
+        ) : (
+          <DangerBtn onClick={stopScan}>스캔 중지</DangerBtn>
+        )}
+      </Buttons>
+
+      {/* HTTPS가 아니거나 권한 문제 있을 때 대안 */}
+      <AltBox>
+        <AltLabel>사진으로 스캔 (HTTPS 필요 없음)</AltLabel>
+        <FileInputLabel htmlFor="qr-file">사진 선택 / 촬영</FileInputLabel>
+        <HiddenFile
+          id="qr-file"
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={onPickImage}
         />
-      </ProfileSection>
-
-      <OvalContainer>
-        <ProgressBar style={{ width: `${progressWidth}%` }} />
-      </OvalContainer>
-      <RemainingTimeText>남은시간: {remainingTime}초</RemainingTimeText>
-
-      <RetryButton onClick={handleRefresh}>QR 재생성</RetryButton>
-    </Container>
+      </AltBox>
+    </Wrap>
   );
 };
 
-export default QR;
+export default QRPage;
 
-// ===== styled-components 그대로 사용 =====
-const Container = styled.div`
-  width: 100%;
-  max-width: 600px;
-  min-height: 100vh;
+/* styled */
+const Wrap = styled.div`
+  max-width: 480px;
   margin: 0 auto;
-  background-color: #f0f0f0;
-  display: flex;
-  flex-direction: column;
+  padding: 16px 16px 40px;
 `;
-const TitleBox = styled.div`
-  background-color: #fff;
-  padding: 20px;
-  font-size: 30px;
-  font-weight: bold;
+const TitleBox = styled.h1`
   text-align: center;
-  margin-bottom: 30px;
-  width: 100%;
-  box-sizing: border-box;
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 12px;
 `;
-const ProfileSection = styled.div`
-  padding: 30px 20px;
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-const ProfileTitle = styled.div`
-  font-size: 30px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  text-align: left;
-  width: 100%;
-`;
-const OvalContainer = styled.div`
-  width: 80%;
-  height: 15px;
-  background-color: #d3d3d3;
-  border-radius: 15px;
-  overflow: hidden;
+const VideoBox = styled.div`
   position: relative;
-  margin-top: 0;
-  margin-left: 10%;
+  width: 100%;
+  aspect-ratio: 3/4;
+  background: #000;
+  border-radius: 16px;
+  overflow: hidden;
 `;
-const ProgressBar = styled.div`
+const Video = styled.video`
+  width: 100%;
   height: 100%;
-  background-color: #ffd700;
-  transition: width 1s linear;
+  object-fit: cover;
 `;
-const RemainingTimeText = styled.div`
-  margin-top: 10px;
-  padding-right: 30px;
-  text-align: right;
-  font-size: 18px;
-  font-weight: bold;
+const ScanGuide = styled.div`
+  position: absolute;
+  inset: 0;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.35);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  margin: 12% 10%;
+  border-radius: 12px;
+  pointer-events: none;
 `;
-const RetryButton = styled.button`
-  width: 80%;
-  margin-top: 80px;
-  margin-left: 10%;
-  padding: 12px 24px;
-  font-size: 16px;
-  cursor: pointer;
-  background-color: #6b89b9;
+const Msg = styled.div`
+  margin: 12px 4px;
+  text-align: center;
+  color: #374151;
+  font-weight: 600;
+`;
+const Buttons = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+`;
+const Btn = styled.button`
+  background: #111827;
   color: #fff;
   border: none;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  transition: background-color 0.3s;
-  &:hover {
-    background-color: rgba(43, 94, 148, 1);
-  }
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-weight: 700;
+`;
+const DangerBtn = styled(Btn)`
+  background: #b91c1c;
+`;
+const AltBox = styled.div`
+  margin-top: 16px;
+  text-align: center;
+`;
+const AltLabel = styled.div`
+  color: #6b7280;
+  font-size: 12px;
+  margin-bottom: 6px;
+`;
+const FileInputLabel = styled.label`
+  display: inline-block;
+  background: #6b89b9;
+  color: #fff;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-weight: 700;
+  cursor: pointer;
+`;
+const HiddenFile = styled.input`
+  display: none;
 `;
