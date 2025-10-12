@@ -16,6 +16,7 @@ import { ProtectedRoute, PublicOnlyRoute } from "./routes/helpers";
 import Logout from "./pages/LogoutPage";
 import Adminpage from "./pages/AdminPage";
 import ScanResultPage from "./pages/ScanResultPage";
+import QrLandingPage from "./pages/QrLandingPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -86,8 +87,13 @@ function App() {
           element: <Sticker />,
         },
         {
+          // 내 QR (차주) - 보호
           path: "qr",
-          element: <QR />,
+          element: (
+            <ProtectedRoute>
+              <QR />
+            </ProtectedRoute>
+          ),
         },
 
         {
@@ -109,6 +115,11 @@ function App() {
         {
           path: "scan",
           element: <ScanResultPage />,
+        },
+        {
+          // 방문자/관리자 랜딩 - 공개
+          path: "qr/:uuid",
+          element: <QrLandingPage />,
         },
       ],
     },
