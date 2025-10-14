@@ -9,7 +9,7 @@ import Home from "./pages/homePage";
 import MyPage from "./pages/MyPage";
 import Auth from "./pages/AuthPage";
 import Sticker from "./pages/StickerPage";
-import QR from "./pages/QRPage";
+import QRPage from "./pages/QRPage";
 import Chatbot from "./pages/ChatbotPage";
 import LoginPage from "./pages/LoginPage";
 import { ProtectedRoute, PublicOnlyRoute } from "./routes/helpers";
@@ -89,11 +89,7 @@ function App() {
         {
           // 내 QR (차주) - 보호
           path: "qr",
-          element: (
-            <ProtectedRoute>
-              <QR />
-            </ProtectedRoute>
-          ),
+          element: <QRPage />,
         },
 
         {
@@ -117,9 +113,8 @@ function App() {
           element: <ScanResultPage />,
         },
         {
-          // 방문자/관리자 랜딩 - 공개
           path: "qr/:uuid",
-          element: <QrLandingPage />,
+          element: <ScanResultPage />,
         },
       ],
     },

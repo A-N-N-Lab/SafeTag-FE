@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-// import Navbar from "../components/NavBar/Navbar";
 import { useNavigate } from "react-router-dom";
 import { getMyPage, updateMyPage } from "../api/mypage";
 
@@ -12,23 +11,14 @@ const Mypage = () => {
     email: "",
     gender: "",
     phoneNum: "",
-    carNumber: "",
+    carNumber: "", //  화면 표준 키는 carNumber로 유지
     birthDate: "",
     address: "",
     company: "",
     permission: "",
   });
 
-  const [editMode, setEditMode] = useState({
-    // name: false,
-    // email: false,
-    // gender: false,
-    // phoneNum: false,
-    // birthDate: false,
-    // carNumber: false,
-    // address: false,
-    // company: false,
-  });
+  const [editMode, setEditMode] = useState({});
 
   //  마운트 시 사용자 정보 가져오기
   useEffect(() => {
@@ -40,8 +30,33 @@ const Mypage = () => {
     (async () => {
       try {
         const res = await getMyPage();
-        setUserInfo(res.data);
+        const d = res.data || {};
+
+        // 1) 백엔드가 vehicleNumber로 줄 수도 있으니 화면 상태의 carNumber로 정규화
+        const normalizedCar = d.carNumber ?? d.vehicleNumber ?? "";
+
+        // 2) 생년월일 YYYY-MM-DD만 표시
+        const birth = d.birthDate ? String(d.birthDate).slice(0, 10) : "";
+
+        // 3) permission 필드가 없으면 "-" 처리
+        setUserInfo({
+          name: d.name ?? "",
+          email: d.email ?? "",
+          gender: d.gender ?? "", // 원본 저장(표시는 아래에서 한글로)
+          phoneNum: d.phoneNum ?? "",
+          carNumber: normalizedCar,
+          birthDate: birth,
+          address: d.address ?? "",
+          company: d.company ?? "",
+          permission: d.permission ?? "-",
+        });
       } catch (err) {
+        // 401이면 로그인 만료로 간주
+        if (err?.response?.status === 401) {
+          localStorage.removeItem("access_token");
+          navigate("/login", { replace: true });
+          return;
+        }
         console.error("마이페이지 불러오기 실패:", err);
         alert("마이페이지 정보를 불러오는 데 실패했습니다.");
       }
@@ -60,12 +75,18 @@ const Mypage = () => {
   const handleSubmit = async (e, field) => {
     e.preventDefault();
     try {
-      await updateMyPage({ [field]: userInfo[field] });
+      // carNumber를 수정하면 API는 vehicleNumber로 보내야 함
+      const payload =
+        field === "carNumber"
+          ? { vehicleNumber: userInfo.carNumber }
+          : { [field]: userInfo[field] };
+
+      await updateMyPage(payload);
       alert("수정 완료!");
       toggleEdit(field);
     } catch (err) {
       console.error("수정 실패:", err);
-      alert("수정에 실패했습니다.");
+      alert(err?.response?.data || "수정에 실패했습니다.");
     }
   };
 
@@ -76,14 +97,13 @@ const Mypage = () => {
 
   const topRows = [
     { key: "name", label: "이름", editable: false },
-    { key: "email", label: "이메일", editable: false }, // 수정 불가면 editable: false로 바꿔
+    { key: "email", label: "이메일", editable: false },
     { key: "phoneNum", label: "전화번호", editable: false },
   ];
 
   const bottomRows = [
-    { key: "carNumber", label: "차량번호", editable: true },
+    { key: "carNumber", label: "차량번호", editable: true }, //  화면상 키 유지
     { key: "address", label: "아파트 정보", editable: true },
-    // 시안의 '권한' 영역: 응답에 permission 없다면 "-"로 표시
     { key: "permission", label: "권한", editable: false },
   ];
 
@@ -117,17 +137,24 @@ const Mypage = () => {
     </Row>
   );
 
+  // 표시에만 한글 매핑
+  const genderLabel =
+    userInfo.gender === "MALE"
+      ? "남성"
+      : userInfo.gender === "FEMALE"
+      ? "여성"
+      : userInfo.gender || "-";
+
   return (
     <Wrap>
       <PageTitle>마이페이지</PageTitle>
 
-      {/* 카드 1 */}
       <Card>{topRows.map(renderRow)}</Card>
 
       <Card>
         <SubtleRow>
           <SubtleKey>성별</SubtleKey>
-          <SubtleVal>{userInfo.gender || "-"}</SubtleVal>
+          <SubtleVal>{genderLabel}</SubtleVal>
         </SubtleRow>
         <SubtleRow>
           <SubtleKey>생년월일</SubtleKey>
@@ -135,7 +162,6 @@ const Mypage = () => {
         </SubtleRow>
       </Card>
 
-      {/* 카드 2 */}
       <Card>{bottomRows.map(renderRow)}</Card>
 
       <LogoutLink type="button" onClick={onLogout}>
@@ -143,7 +169,6 @@ const Mypage = () => {
       </LogoutLink>
 
       <BottomSpacer />
-      {/* <Navbar /> */}
     </Wrap>
   );
 };
@@ -155,13 +180,11 @@ const Wrap = styled.div`
   margin: 0 auto;
   padding: 20px 16px 90px;
 `;
-
 const PageTitle = styled.h2`
   font-size: 24px;
   font-weight: 800;
   margin: 6px 0 16px;
 `;
-
 const Card = styled.div`
   background: #f7f7fb;
   border: 1px solid #ececf3;
@@ -169,7 +192,6 @@ const Card = styled.div`
   padding: 14px;
   margin-bottom: 16px;
 `;
-
 const Row = styled.div`
   position: relative;
   display: flex;
@@ -178,25 +200,21 @@ const Row = styled.div`
   gap: 12px;
   padding: 10px 8px;
   border-radius: 12px;
-
   & + & {
     margin-top: 6px;
   }
 `;
-
 const RowLabel = styled.div`
   font-size: 13px;
   color: #6b7280;
   margin-bottom: 4px;
 `;
-
 const RowValue = styled.div`
   font-size: 16px;
   font-weight: 800;
   color: #111827;
   word-break: break-all;
 `;
-
 const EditPill = styled.button`
   align-self: center;
   border: 1px solid #e5e7eb;
@@ -207,7 +225,6 @@ const EditPill = styled.button`
   font-weight: 700;
   color: #6b7280;
 `;
-
 const Input = styled.input`
   width: 100%;
   font-size: 15px;
@@ -217,12 +234,10 @@ const Input = styled.input`
   background: #fff;
   margin: 6px 0 8px;
 `;
-
 const Buttons = styled.div`
   display: flex;
   gap: 8px;
 `;
-
 const SmallBtn = styled.button`
   border: 1px solid #e5e7eb;
   background: #fff;
@@ -231,13 +246,11 @@ const SmallBtn = styled.button`
   font-size: 12px;
   color: #6b7280;
 `;
-
 const PrimarySmallBtn = styled(SmallBtn)`
   background: #111827;
   color: #fff;
   border-color: #111827;
 `;
-
 const SubtleRow = styled.div`
   display: flex;
   justify-content: space-between;
@@ -252,7 +265,6 @@ const SubtleVal = styled.div`
   font-weight: 700;
   font-size: 14px;
 `;
-
 const LogoutLink = styled.button`
   width: 100%;
   text-align: center;
@@ -263,7 +275,6 @@ const LogoutLink = styled.button`
   border-radius: 10px;
   font-weight: 700;
 `;
-
 const BottomSpacer = styled.div`
   height: 70px;
 `;
