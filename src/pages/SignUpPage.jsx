@@ -16,6 +16,7 @@ const SignUp = ({ mode = "user" }) => {
     gender: "여성",
     birthDate: "", // YYYY-MM-DD
     phoneNum: "",
+    vehicleNumber: "",
     address: "", // 일반 사용자 전용
     company: "", // 관리자 전용
   });
@@ -76,6 +77,7 @@ const SignUp = ({ mode = "user" }) => {
           birthDate: formData.birthDate,
           gender: formData.gender,
           address: formData.address,
+          vehicleNumber: formData.vehicleNumber,
           email: formData.email || undefined,
         };
         await signUpUser(body);
@@ -158,7 +160,14 @@ const SignUp = ({ mode = "user" }) => {
           value={formData.birthDate}
           onChange={handleChange}
         />
-
+        <Label>차량번호</Label>
+        <Input
+          type="text"
+          name="vehicleNumber"
+          value={formData.vehicleNumber}
+          onChange={handleChange}
+          placeholder="예: 12가 3456"
+        />
         {/* 일반/관리자 분기 필드 */}
         {!isAdmin ? (
           <>

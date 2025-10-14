@@ -10,5 +10,6 @@ export interface UserSignUpReq {
   gender: "MALE" | "FEMALE";
   address: string;
   email?: string;
+  vehicleNumber: String;
 }
 export const signUpUser = (d: UserSignUpReq) => api.post("/user/signup", d);

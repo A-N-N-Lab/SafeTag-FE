@@ -16,6 +16,7 @@ import { ProtectedRoute, PublicOnlyRoute } from "./routes/helpers";
 import Logout from "./pages/LogoutPage";
 import Adminpage from "./pages/AdminPage";
 import ScanResultPage from "./pages/ScanResultPage";
+import QrLandingPage from "./pages/QrLandingPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -86,6 +87,7 @@ function App() {
           element: <Sticker />,
         },
         {
+          // 내 QR (차주) - 보호
           path: "qr",
           element: <QRPage />,
         },
