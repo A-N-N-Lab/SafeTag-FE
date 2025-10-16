@@ -1,19 +1,28 @@
-import React from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useState } from "react";
+import styled from "styled-components";
 
 const HeaderContainer = styled.div`
   h1 {
-    color: rgb(0, 0, 0);
-    text-align: left; /* 텍스트 왼쪽 정렬 */
-    margin-top: 50px; /* 상단 여백 추가 */
+    color: #000;
+    text-align: left;
+    margin-top: 50px;
     margin-left: 15px;
   }
 `;
 
 const Header = () => {
+  const [userName, setUserName] = useState("");
+
+  useEffect(() => {
+    const read = () => setUserName(localStorage.getItem("name") || "");
+    read();
+    window.addEventListener("auth-changed", read);
+    return () => window.removeEventListener("auth-changed", read);
+  }, []);
+
   return (
     <HeaderContainer>
-      <h1>DSWU-1234</h1>
+      <h1>{userName ? `${userName}님` : "로그인 중..."}</h1>
     </HeaderContainer>
   );
 };
