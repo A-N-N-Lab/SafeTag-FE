@@ -4,6 +4,7 @@ import { login } from "../api/login";
 import { useNavigate } from "react-router-dom";
 import { setupFcm } from "../lib/firebase";
 import { saveFcmToken } from "../api/fcmToken";
+import { getMe } from "../api/me";
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
@@ -13,23 +14,38 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // 1. 로그인 (객체로! )
+      // 1) 로그인
       const data = await login({ username, password });
       const jwt = data.token;
       if (!jwt) throw new Error("로그인 응답에 token이 없음");
       localStorage.setItem("access_token", jwt);
 
+      // 2) 로그인한 사용자 정보(/me) 불러와서 이름 저장
+      try {
+        const me = await getMe(); // 예: { id, username, name, ... }
+        const displayName =
+          me?.name?.trim() || me?.username?.trim() || username.trim();
+        localStorage.setItem("name", displayName);
+      } catch (meErr) {
+        console.warn("프로필 조회 실패, username으로 대체:", meErr);
+        localStorage.setItem("name", username.trim());
+      }
+
+      // 3) 전역에 로그인 상태 변경 브로드캐스트 (Header 갱신용)
       window.dispatchEvent(new Event("auth-changed"));
 
+      // 4) 이동
       alert("로그인 성공!");
       navigate("/main", { replace: true });
 
-      // 2. fcm 등록
+      // 5) FCM 등록은 백그라운드로
       Promise.resolve().then(async () => {
         try {
           const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
-          if (!VAPID_PUBLIC_KEY)
-            return console.warn("VAPID 키 비어있음 - FCM 스킵");
+          if (!VAPID_PUBLIC_KEY) {
+            console.warn("VAPID 키 비어있음 - FCM 스킵");
+            return;
+          }
           const fcmToken = await setupFcm(VAPID_PUBLIC_KEY);
           if (fcmToken) {
             await saveFcmToken(fcmToken); // Authorization은 axios 인터셉터가 자동 첨부
