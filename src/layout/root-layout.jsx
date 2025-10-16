@@ -3,6 +3,7 @@ import { Outlet, useLocation, matchPath } from "react-router-dom";
 import NavBar from "../components/NavBar/Navbar";
 import Footer from "../components/Footer/Footer";
 import styled, { createGlobalStyle } from "styled-components";
+import EnablePushButton from "../components/common/EnablePushButton";
 
 const NAV_HEIGHT = 64;
 const FOOTER_HEIGHT = 56; // Footer 실제 높이에 맞게 조정
@@ -36,19 +37,19 @@ export default function RootLayout() {
         label: "Sticker",
         icon: "/menu2.png",
         activeIcon: "/menu22.png",
-        path: "/Auth",
+        path: "/sticker",
       },
       {
         label: "QR",
         icon: "/menu3.png",
         activeIcon: "/menu33.png",
-        path: "/QR",
+        path: "/qr",
       },
       {
         label: "Mypage",
         icon: "/menu4.png",
         activeIcon: "/menu44.png",
-        path: "/Mypage",
+        path: "/mypage",
       },
     ],
     []
@@ -59,6 +60,7 @@ export default function RootLayout() {
       <GlobalStyle />
       <Container $padBottom={hideShell ? 0 : NAV_HEIGHT + FOOTER_HEIGHT}>
         <Outlet />
+        <EnablePushButton />
         {!hideShell && <Footer />}
       </Container>
       {!hideShell && <NavBar items={items} showLabels />}

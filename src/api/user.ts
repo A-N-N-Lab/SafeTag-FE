@@ -12,4 +12,4 @@ export interface UserSignUpReq {
   email?: string;
   vehicleNumber: String;
 }
-export const signUpUser = (d: UserSignUpReq) => api.post("/user/signup", d);
+export const signUpUser = (d: UserSignUpReq) => api.post("/api/user/signup", d);

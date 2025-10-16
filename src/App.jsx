@@ -1,5 +1,7 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import RootLayout from "./layout/root-layout";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 import SignUp from "./pages/SignUpPage";
 import SignupSelect from "./pages/SignupSelectPage";
@@ -16,13 +18,50 @@ import { ProtectedRoute, PublicOnlyRoute } from "./routes/helpers";
 import Logout from "./pages/LogoutPage";
 import Adminpage from "./pages/AdminPage";
 import ScanResultPage from "./pages/ScanResultPage";
-import QrLandingPage from "./pages/QrLandingPage";
+import CallPage from "./pages/CallPage";
+
+// 서비스워커 메시지를 처리하는 컴포넌트
+function FcmMessageListener() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const onSwMsg = (event) => {
+      if (event.data?.type === "OPEN_CALL" && event.data.sessionId) {
+        navigate(`/call/${event.data.sessionId}`);
+      }
+    };
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.addEventListener("message", onSwMsg);
+    }
+
+    // onMessage에서 CustomEvent("FCM_OPEN_CALL") 쏜 경우도 처리 (포그라운드 클릭)
+    const onCustom = (e) => {
+      const sid = e.detail?.sessionId;
+      if (sid) navigate(`/call/${sid}`);
+    };
+    window.addEventListener("FCM_OPEN_CALL", onCustom);
+
+    return () => {
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.removeEventListener("message", onSwMsg);
+      }
+      window.removeEventListener("FCM_OPEN_CALL", onCustom);
+    };
+  }, [navigate]);
+
+  return null;
+}
 
 function App() {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <RootLayout />,
+      element: (
+        <>
+          <FcmMessageListener />
+          <RootLayout />
+        </>
+      ),
       errorElement: <NotFound />,
       children: [
         {
@@ -67,7 +106,7 @@ function App() {
           ),
         },
         {
-          path: "Mypage",
+          path: "mypage",
           element: (
             <ProtectedRoute>
               <MyPage />
@@ -115,6 +154,10 @@ function App() {
         {
           path: "qr/:uuid",
           element: <ScanResultPage />,
+        },
+        {
+          path: "call/:sessionId",
+          element: <CallPage />,
         },
       ],
     },

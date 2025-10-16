@@ -17,6 +17,6 @@ export type MyPageUpdateRequest = Partial<
   >
 >;
 
-export const getMyPage = () => api.get<MyPageResponse>("/mypage");
+export const getMyPage = () => api.get<MyPageResponse>("/api/mypage");
 export const updateMyPage = (data: MyPageUpdateRequest) =>
-  api.put("/mypage/edit", data);
+  api.put("/api/mypage/edit", data);

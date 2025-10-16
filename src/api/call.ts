@@ -9,7 +9,7 @@ export async function startCall(
   qrUuid: string,
   callerUserId?: number
 ): Promise<StartCallResponse> {
-  const { data } = await api.post("/calls/start", {
+  const { data } = await api.post("/api/calls/start", {
     qrUuid,
     callerUserId,
   });
