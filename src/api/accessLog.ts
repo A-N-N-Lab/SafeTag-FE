@@ -2,9 +2,9 @@
 import { api } from "./index";
 
 export const saveAccessLog = (qrId: number, ip: string, userAgent: string) => {
-  return api.post("/logs", { qrId, ip, userAgent });
+  return api.post("/api/logs", { qrId, ip, userAgent });
 };
 
 export const getAccssLog = (qrId: number) => {
-  return api.get(`/logs/qrs/${qrId}logs`);
+  return api.get(`/api/logs/qrs/${qrId}logs`);
 };

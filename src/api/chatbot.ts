@@ -13,7 +13,7 @@ const authHeader = (): Record<string, string> => {
 };
 
 export async function postChat(messages: ChatMessage[]): Promise<ChatResponse> {
-  const res = await fetch(`${BASE}/chat`, {
+  const res = await fetch(`${BASE}/api/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeader() },
     body: JSON.stringify({ messages }),

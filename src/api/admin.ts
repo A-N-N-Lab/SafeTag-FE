@@ -11,4 +11,5 @@ export interface AdminSignUpReq {
   company: string;
   email?: string;
 }
-export const signUpAdmin = (d: AdminSignUpReq) => api.post("/admin/signup", d);
+export const signUpAdmin = (d: AdminSignUpReq) =>
+  api.post("/api/admin/signup", d);

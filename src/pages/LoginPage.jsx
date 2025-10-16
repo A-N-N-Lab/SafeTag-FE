@@ -2,6 +2,8 @@ import { useState } from "react";
 import styled from "styled-components";
 import { login } from "../api/login";
 import { useNavigate } from "react-router-dom";
+import { setupFcm } from "../lib/firebase";
+import { saveFcmToken } from "../api/fcmToken";
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
@@ -11,12 +13,34 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await login(username, password);
+      // 1. 로그인 (객체로! )
+      const data = await login({ username, password });
+      const jwt = data.token;
+      if (!jwt) throw new Error("로그인 응답에 token이 없음");
+      localStorage.setItem("access_token", jwt);
+
+      window.dispatchEvent(new Event("auth-changed"));
+
       alert("로그인 성공!");
-      // 토큰 저장 등 추가 로직
-      localStorage.setItem("access_token", res.token);
       navigate("/main", { replace: true });
+
+      // 2. fcm 등록
+      Promise.resolve().then(async () => {
+        try {
+          const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+          if (!VAPID_PUBLIC_KEY)
+            return console.warn("VAPID 키 비어있음 - FCM 스킵");
+          const fcmToken = await setupFcm(VAPID_PUBLIC_KEY);
+          if (fcmToken) {
+            await saveFcmToken(fcmToken); // Authorization은 axios 인터셉터가 자동 첨부
+            console.log("FCM Token saved");
+          }
+        } catch (fcmErr) {
+          console.warn("FCM 등록 실패:", fcmErr);
+        }
+      });
     } catch (err) {
+      console.error(err);
       alert("로그인 실패! 아이디 또는 비밀번호를 확인해주세요.");
     }
   };
@@ -42,7 +66,6 @@ const LoginPage = () => {
         <Button type="submit">로그인</Button>
       </Form>
       <BottomLinks>
-        {/*아이디찾기/ 비밀번호찾기 없앨까 .. 흠  */}
         <span>아이디 찾기</span>
         <Divider>|</Divider>
         <span>비밀번호 찾기</span>
@@ -104,7 +127,6 @@ const BottomLinks = styled.div`
   margin-top: 24px;
   font-size: 13px;
   color: gray;
-
   span {
     cursor: pointer;
   }
