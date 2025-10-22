@@ -14,11 +14,11 @@ const HIDE_SHELL_ON = [
   "/signup",
   "/start",
   "/logout",
-  "/admin/*",
+  // "/admin/*",
   "/call/*", // 통화 화면은 풀스크린 권장
 ];
 
-export default function RootLayout() {
+const RootLayout = () => {
   const location = useLocation();
 
   const hideShell = HIDE_SHELL_ON.some((p) =>
@@ -55,40 +55,71 @@ export default function RootLayout() {
     []
   );
 
+  // Nav + Footer가 보일 때는 가려지지 않도록 내부 컨텐츠에 패딩을 준다
+  const padBottom = hideShell ? 0 : NAV_HEIGHT + FOOTER_HEIGHT;
+
   return (
     <>
       <GlobalStyle />
-      <Container $padBottom={hideShell ? 0 : NAV_HEIGHT + FOOTER_HEIGHT}>
-        <Outlet />
-        <EnablePushButton />
-        {!hideShell && <Footer />}
-      </Container>
+
+      {/* 바깥 바탕(회색) */}
+      <Viewport>
+        {/* 앱 표면(흰색 카드) */}
+        <Surface>
+          {/* 내부만 스크롤되도록 분리 */}
+          <Content $padBottom={padBottom}>
+            <Outlet />
+            <EnablePushButton />
+          </Content>
+
+          {!hideShell && <Footer />}
+        </Surface>
+      </Viewport>
+
       {!hideShell && <NavBar items={items} showLabels />}
     </>
   );
-}
+};
+export default RootLayout;
 
 const GlobalStyle = createGlobalStyle`
-  /* 가능하면 index.html <link>로 옮기는 걸 권장 */
   @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    display: flex; justify-content: center; align-items: flex-start;
-    min-height: 100vh;
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    background-color: rgba(241,241,241,1);
+  /* 기본 리셋 */
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body, #root { height: 100%; }
+  html, body {
+    margin: 0;
+    overflow-x : hidden;
+    background: #ECEFF3; 
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 `;
 
-// JS(.jsx)에서는 제네릭/타입 선언 없이 사용
-// $ 접두사는 transient prop이라 DOM에 내려가지 않음
-const Container = styled.div`
-  width: 393px; /* 모바일 기준 폭 고정 */
-  min-height: 100vh;
+const Viewport = styled.div`
+  height: 100dvh;
+  display: flex;
+  justify-content: center;
+  padding: 12px env(safe-area-inset-right) 12px env(safe-area-inset-left);
+`;
+
+const Surface = styled.div`
+  width: 100%;
+  max-width: 393px;
+  height: 100dvh;
   background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
   overflow-y: auto;
-  margin: 0 auto;
-  padding-bottom: ${({ $padBottom }) =>
-    `${$padBottom}px`}; /* Nav+Footer 가림 방지 */
+  webkit-overflow-scrolling: touch;
+`;
+
+const Content = styled.main`
+  flex: 1 0 auto;
+  padding: 12px;
+  padding-bottom: ${({ $padBottom }) => `${$padBottom}px`};
 `;

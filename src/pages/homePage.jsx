@@ -5,8 +5,6 @@ import ChatBox from "../components/chatbot/ChatBox";
 import ActionRow from "../components/common/ActionRow";
 import ActionCard from "../components/common/ActionCard";
 import InfoTile from "../components/common/InfoTile";
-import Navbar from "../components/NavBar/Navbar";
-import Footer from "../components/Footer/Footer";
 import { useNavigate } from "react-router-dom";
 
 const HomePage = () => {
@@ -16,7 +14,9 @@ const HomePage = () => {
     <App>
       <Header />
 
-      <ChatBox maxWidth="350px" />
+      <Section>
+        <ChatBox maxWidth="350px" />
+      </Section>
 
       <ActionRow
         title="차량 관리"
@@ -24,7 +24,7 @@ const HomePage = () => {
           {
             label: "권한 인증",
             icon: "/auth-icon.png",
-            onClick: () => nav("/Auth"),
+            onClick: () => nav("/auth"),
           },
           { label: "고객센터", icon: "/callcen-icon.png", onClick: () => {} },
         ]}
@@ -45,36 +45,6 @@ const HomePage = () => {
         />
         <InfoTile title="기타" />
       </Row>
-
-      <Navbar
-        items={[
-          {
-            label: "Home",
-            icon: "/menu1.png",
-            activeIcon: "/menu11.png",
-            path: "/main",
-          },
-          {
-            label: "Sticker",
-            icon: "/menu2.png",
-            activeIcon: "/menu22.png",
-            path: "/Auth",
-          },
-          {
-            label: "QR",
-            icon: "/menu3.png",
-            activeIcon: "/menu33.png",
-            path: "/QR",
-          },
-          {
-            label: "Mypage",
-            icon: "/menu4.png",
-            activeIcon: "/menu44.png",
-            path: "/Mypage",
-          },
-        ]}
-      />
-      <div style={{ height: 72 }} />
     </App>
   );
 };
@@ -83,14 +53,24 @@ export default HomePage;
 
 const App = styled.div`
   width: 100%;
-  padding-bottom: 150px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  background: #f0f0f0;
+  gap: 14px;
+  background: transparent;
 `;
+
+const Section = styled.section`
+  padding: 0 12px;
+`;
+
 const Row = styled.div`
   display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
+  gap: 12px;
+  padding: 0 12px;
+  margin-top: 8px;
+
+  > * {
+    flex: 1 1 0; /* 양쪽 카드가 자동 나눠가짐 */
+    min-width: 0; /* 긴 내용이 있어도 줄여서 들어가게 */
+  }
 `;
