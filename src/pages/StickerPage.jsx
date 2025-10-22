@@ -1,41 +1,71 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
-// import Navbar from "../components/NavBar/Navbar";
 
-// 날짜 계산 함수
-const getTodayString = () => {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
-  return `${year}년 ${month}월 ${day}일`;
-};
+const STORAGE_KEY = "safetag_my_sticker";
 
-// 메인 타이틀
 const Title = () => <TitleBox>내 권한</TitleBox>;
 
+const formatKoreanDate = (iso) => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}년 ${m}월 ${day}일`;
+};
+
 const Sticker = () => {
-  const issueDate = getTodayString();
-  const expiryDate = getOneYearLaterString();
+  const sticker = useMemo(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  // 스티커가 없을 경우(아마도 거주민 스티커는 다 있을텐데 발급 전 )
+  if (!sticker) {
+    return (
+      <EmptyContainer>
+        <Title />
+        <EmptyMessage>
+          아직 발급된 스티커가 없습니다.
+          <br />
+          챗봇에서 인증 서류를 제출하고 스티커를 발급받아보세요!
+        </EmptyMessage>
+        <ChatbotButton onClick={() => (window.location.href = "/auth")}>
+          챗봇 열기
+        </ChatbotButton>
+      </EmptyContainer>
+    );
+  }
+  // 발급된 스티커 있을 경우
+  const car = sticker?.carNumber ?? "-";
+  const issued = formatKoreanDate(sticker?.issuedAt);
+  const expires = formatKoreanDate(sticker?.expiresAt);
+  const img = sticker?.imageUrl ?? "/Sticker.png";
+  const issuer = sticker?.issuer ?? "SAFETAG";
+  const title =
+    sticker?.type === "PREGNANT"
+      ? "임산부: 본인"
+      : sticker?.type === "DISABLED"
+      ? "장애인: 본인"
+      : "거주민";
 
   return (
     <Container>
-      {/* 제목 */}
       <Title />
-
-      {/* 장애인: 본인와 사진 */}
       <ProfileSection>
-        <ProfileTitle>장애인: 본인</ProfileTitle>
-        <ProfileImage src="/Sticker.png" alt="장애인 본인" />
+        <ProfileTitle>{title}</ProfileTitle>
+        <ProfileImage src={img} alt={title} />
       </ProfileSection>
 
-      {/* 세부 정보 */}
       <InfoBox>
-        <InfoItem>차량 번호: 123가 1234</InfoItem>
-        <InfoItem>발급 일자: {issueDate}</InfoItem>{" "}
-        {/*발급일자는 오늘 날짜로 뜨게 해놨어용 추후 수정해야됨!*/}
-        <InfoItem>유효 기간: {expiryDate}</InfoItem>
-        <InfoItem>발급 기관: SAFETAG</InfoItem>
+        <InfoItem>차량 번호: {car}</InfoItem>
+        <InfoItem>발급 일자: {issued}</InfoItem>
+        <InfoItem>유효 기간: {expires}</InfoItem>
+        <InfoItem>발급 기관: {issuer}</InfoItem>
       </InfoBox>
       {/* <Navbar /> */}
     </Container>
@@ -43,39 +73,61 @@ const Sticker = () => {
 };
 
 export default Sticker;
-const getOneYearLaterString = () => {
-  const today = new Date();
-  const nextYear = new Date(
-    today.getFullYear() + 1,
-    today.getMonth(),
-    today.getDate()
-  );
-  const year = nextYear.getFullYear();
-  const month = String(nextYear.getMonth() + 1).padStart(2, "0");
-  const day = String(nextYear.getDate()).padStart(2, "0");
-  return `${year}년 ${month}월 ${day}일`;
-};
 
-// 컨테이너
+// const Container = styled.div`
+//   width: 100%;
+//   max-width: 600px;
+//   min-height: 100vh;
+//   margin: 0 auto;
+//   display: flex;
+//   flex-direction: column;
+// `;
+
 const Container = styled.div`
-  width: 100%;
-  max-width: 600px;
-  min-height: 100vh;
+  max-width: 480px;
   margin: 0 auto;
-  background-color: #f0f0f0; /* 전체 배경색 연한 회색을 유지 */
-  display: flex;
-  flex-direction: column;
+  padding: 16px 16px 40px;
+`;
+const TitleBox = styled.h1`
+  text-align: center;
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 12px;
 `;
 
-// 제목 박스
-const TitleBox = styled.div`
-  background-color: #fff;
-  padding: 20px;
-  font-size: 24px;
-  font-weight: bold;
+const EmptyContainer = styled(Container)`
+  justify-content: center;
+  align-items: center;
   text-align: center;
-  margin-bottom: 30px;
 `;
+
+const EmptyMessage = styled.div`
+  font-size: 18px;
+  color: #444;
+  margin-top: 20px;
+  line-height: 1.6;
+`;
+
+const ChatbotButton = styled.button`
+  margin-top: 25px;
+  padding: 10px 18px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  background-color: #0078ff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+`;
+
+// const TitleBox = styled.div`
+//   background-color: #fff;
+//   padding: 20px;
+//   font-size: 24px;
+//   font-weight: bold;
+//   text-align: center;
+//   margin-bottom: 30px;
+// `;
 
 const ProfileSection = styled.div`
   padding: 30px 20px;
@@ -83,27 +135,24 @@ const ProfileSection = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* 배경색 없애기, 필요시 삭제하세요 */
 `;
 
 const ProfileTitle = styled.div`
   font-size: 20px;
   font-weight: bold;
   margin-bottom: 20px;
-  /* 왼쪽 정렬 하고 싶으면: */
-  text-align: left; /* 또는 justify-content 맞게 조절 */
-  width: 100%; /* 너비 전체 */
+  text-align: left;
+  width: 100%;
 `;
 
 const ProfileImage = styled.img`
-  width: 400px; /* 적당히 크기 조정 */
+  width: 400px;
   height: auto;
-  display: block; /* 블록으로 만들어 가운데 정렬 */
-  margin-right: 0px;
+  display: block;
 `;
 
 const InfoBox = styled.div`
-  background-color: white; /* 배경 제거 */
+  background-color: white;
   padding: 20px;
   margin-top: 10px;
   border-radius: 8px;
@@ -111,6 +160,6 @@ const InfoBox = styled.div`
 
 const InfoItem = styled.div`
   margin-bottom: 15px;
-  font-size: 20px; /* 크기 키우기 */
-  color: #6b89b9; /* 파란색으로 변경 */
+  font-size: 18px;
+  color: #6b89b9;
 `;

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import Header from "../components/Header/Header.jsx";
-import ChatBox from "../components/common/ChatBox.jsx";
+import ChatBox from "../components/chatbot/ChatBox.jsx";
 import ActionRow from "../components/common/ActionRow.jsx";
 import ActionCard from "../components/common/ActionCard.jsx";
 import InfoTile from "../components/common/InfoTile.jsx";
@@ -25,7 +25,7 @@ const AdminPage = () => {
 
   // --- CCTV 모달 기능 추가 START ---
   const [isCctvModalOpen, setIsCctvModalOpen] = useState(false);
-  const cctvStreamUrl = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
+  const cctvStreamUrl = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
 
   const handleOpenCctvModal = () => setIsCctvModalOpen(true);
   const handleCloseCctvModal = () => setIsCctvModalOpen(false);
@@ -79,7 +79,6 @@ const AdminPage = () => {
     <App>
       <Header />
 
-
       {/* 기존 구성 유지: 필요 없으면 주석 처리 */}
       <Row>
         <QRScannerBox />
@@ -110,27 +109,37 @@ const AdminPage = () => {
         <ActionCard
           title="이벤트 탐지"
           actions={[
-            { label: "CCTV", icon: "/cctv-icon.png", onClick: handleOpenCctvModal },
+            {
+              label: "CCTV",
+              icon: "/cctv-icon.png",
+              onClick: handleOpenCctvModal,
+            },
             { label: "차단기", icon: "/cadan-icon.png", onClick: () => {} },
           ]}
         />
         <InfoTile title="기타" />
       </Row>
 
-      
       {/* --- CCTV 모달 JSX 추가 --- */}
       {isCctvModalOpen && (
-          <ModalBackground onClick={handleCloseCctvModal}>
-              <ModalContent onClick={(e) => e.stopPropagation()}>
-                  <ModalHeader>
-                      <h4>CCTV 실시간 영상</h4>
-                      <CloseButton onClick={handleCloseCctvModal}>&times;</CloseButton>
-                  </ModalHeader>
-                  <VideoWrapper>
-                      <video controls autoPlay muted playsInline src={cctvStreamUrl} style={{width: '100%', height: '100%'}}></video>
-                  </VideoWrapper>
-              </ModalContent>
-          </ModalBackground>
+        <ModalBackground onClick={handleCloseCctvModal}>
+          <ModalContent onClick={(e) => e.stopPropagation()}>
+            <ModalHeader>
+              <h4>CCTV 실시간 영상</h4>
+              <CloseButton onClick={handleCloseCctvModal}>&times;</CloseButton>
+            </ModalHeader>
+            <VideoWrapper>
+              <video
+                controls
+                autoPlay
+                muted
+                playsInline
+                src={cctvStreamUrl}
+                style={{ width: "100%", height: "100%" }}
+              ></video>
+            </VideoWrapper>
+          </ModalContent>
+        </ModalBackground>
       )}
     </App>
   );
@@ -219,8 +228,10 @@ const SecondaryButton = styled.button`
 // --- CCTV 모달 스타일 추가 ---
 const ModalBackground = styled.div`
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
@@ -266,4 +277,3 @@ const VideoWrapper = styled.div`
   padding-top: 56.25%; /* 16:9 Aspect Ratio */
   background-color: #000;
 `;
-
