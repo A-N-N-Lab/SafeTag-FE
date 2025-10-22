@@ -150,7 +150,6 @@ const QRPage = () => {
 
 export default QRPage;
 
-/* styled */
 const Wrap = styled.div`
   max-width: 480px;
   margin: 0 auto;
