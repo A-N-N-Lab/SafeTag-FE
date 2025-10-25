@@ -14,8 +14,8 @@ const HIDE_SHELL_ON = [
   "/signup",
   "/start",
   "/logout",
-  // "/admin/*",
   "/call/*", // 통화 화면은 풀스크린 권장
+  "/chatbot",
 ];
 
 const RootLayout = () => {
@@ -66,60 +66,54 @@ const RootLayout = () => {
       <Viewport>
         {/* 앱 표면(흰색 카드) */}
         <Surface>
-          {/* 내부만 스크롤되도록 분리 */}
-          <Content $padBottom={padBottom}>
+          {/* 네비바가 보일 때만 하단 패딩 */}
+          <Content $padBottom={hideShell ? 0 : NAV_HEIGHT}>
             <Outlet />
             <EnablePushButton />
           </Content>
 
-          {!hideShell && <Footer />}
+          {!hideShell && <NavBar items={items} showLabels />}
         </Surface>
       </Viewport>
-
-      {!hideShell && <NavBar items={items} showLabels />}
     </>
   );
 };
+
 export default RootLayout;
-
 const GlobalStyle = createGlobalStyle`
-  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-
-  /* 기본 리셋 */
-  *, *::before, *::after { box-sizing: border-box; }
-  html, body, #root { height: 100%; }
   html, body {
     margin: 0;
-    overflow-x : hidden;
-    background: #ECEFF3; 
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    padding: 0;
+    overflow-x: hidden;
+    background: #ECEFF3;
+    height: 100%;
   }
 `;
 
 const Viewport = styled.div`
-  height: 100dvh;
   display: flex;
-  justify-content: center;
-  padding: 12px env(safe-area-inset-right) 12px env(safe-area-inset-left);
+  flex-direction: column;
+  align-items: center;
+  min-height: 100dvh;
+  position: relative;
 `;
 
 const Surface = styled.div`
   width: 100%;
   max-width: 393px;
-  height: 100dvh;
   background: #fff;
-  border-radius: 16px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
-  overflow-y: auto;
-  webkit-overflow-scrolling: touch;
+  overflow: hidden;
 `;
 
 const Content = styled.main`
-  flex: 1 0 auto;
-  padding: 12px;
-  padding-bottom: ${({ $padBottom }) => `${$padBottom}px`};
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: visible;
+  padding-bottom: ${NAV_HEIGHT}px;
+  box-sizing: border-box;
 `;

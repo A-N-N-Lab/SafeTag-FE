@@ -1,11 +1,11 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import ChatbotLauncher from "../components/chatbot/ChatbotLauncher";
+import { asset, STICKER_TEMPLATE } from "../config/assets";
 
 const STORAGE_KEY = "safetag_my_sticker";
 
 export default function AuthPage() {
-  // 로컬에 저장된 최근 발급 스티커(챗봇에서 postMessage로 저장됨)
   const sticker = useMemo(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -16,7 +16,6 @@ export default function AuthPage() {
   }, []);
 
   const onIssued = () => {
-    // 챗봇 발급 완료 시 호출됨(저장은 ChatbotLauncher가 이미 수행)
     window.location.href = "/sticker";
   };
 
@@ -38,19 +37,29 @@ export default function AuthPage() {
     return `${y}년 ${m}월 ${day}일`;
   };
 
+  // 이미지 경로 절대화 + 폴백
+  const rawImg = sticker?.imageUrl || "Sticker.png";
+  const initialImg = /^https?:\/\//i.test(rawImg) ? rawImg : asset(rawImg);
+  const [thumbSrc, setThumbSrc] = useState(initialImg);
+  const onImgError = () => {
+    const fallback =
+      (sticker?.type && STICKER_TEMPLATE[sticker.type]) || asset("Sticker.png");
+    if (thumbSrc !== fallback) setThumbSrc(fallback);
+  };
+
   return (
     <AppContainer>
       <HeaderWrapper>
         <HeaderText>권한 인증</HeaderText>
       </HeaderWrapper>
 
-      {/* 현재 상태 박스 */}
       <Section>
         <BlockTitle>내 스티커 현황</BlockTitle>
         <Card>
-          <Thumb src={sticker?.imageUrl || "/Sticker.png"} alt="sticker" />
+          <Thumb src={thumbSrc} alt="sticker" onError={onImgError} />
           <Info>
-            <Line strong>{title}</Line>
+            {/* ✅ strong -> $strong (transient prop) */}
+            <Line $strong>{title}</Line>
             <Line>차량번호: {sticker?.carNumber || "-"}</Line>
             <Line>발급일: {fmt(sticker?.issuedAt)}</Line>
             <Line>유효기간: {fmt(sticker?.expiresAt)}</Line>
@@ -68,7 +77,6 @@ export default function AuthPage() {
         )}
       </Section>
 
-      {/* 챗봇 발급/재발급 */}
       <Section>
         <BlockTitle>발급 / 재발급</BlockTitle>
         <ChatbotLauncher onIssued={onIssued} />
@@ -121,11 +129,14 @@ const Info = styled.div`
   gap: 6px;
   flex: 1;
 `;
+
+/* ✅ DOM에 전달되지 않도록 $ 접두사 사용 */
 const Line = styled.div`
-  font-size: ${(p) => (p.strong ? "16px" : "14px")};
-  font-weight: ${(p) => (p.strong ? 700 : 400)};
-  color: ${(p) => (p.strong ? "#222" : "#555")};
+  font-size: ${(p) => (p.$strong ? "16px" : "14px")};
+  font-weight: ${(p) => (p.$strong ? 700 : 400)};
+  color: ${(p) => (p.$strong ? "#222" : "#555")};
 `;
+
 const Btns = styled.div`
   margin-top: 6px;
   display: flex;
