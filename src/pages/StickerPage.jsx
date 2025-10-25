@@ -1,5 +1,6 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
+import { asset, STICKER_TEMPLATE } from "../config/assets";
 
 const STORAGE_KEY = "safetag_my_sticker";
 
@@ -14,7 +15,7 @@ const formatKoreanDate = (iso) => {
   return `${y}년 ${m}월 ${day}일`;
 };
 
-const Sticker = () => {
+const StickerPage = () => {
   const sticker = useMemo(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -24,7 +25,7 @@ const Sticker = () => {
     }
   }, []);
 
-  // 스티커가 없을 경우(아마도 거주민 스티커는 다 있을텐데 발급 전 )
+  // 스티커가 없는 경우
   if (!sticker) {
     return (
       <EmptyContainer>
@@ -40,11 +41,11 @@ const Sticker = () => {
       </EmptyContainer>
     );
   }
-  // 발급된 스티커 있을 경우
+
+  // 발급된 스티커가 있는 경우
   const car = sticker?.carNumber ?? "-";
   const issued = formatKoreanDate(sticker?.issuedAt);
   const expires = formatKoreanDate(sticker?.expiresAt);
-  const img = sticker?.imageUrl ?? "/Sticker.png";
   const issuer = sticker?.issuer ?? "SAFETAG";
   const title =
     sticker?.type === "PREGNANT"
@@ -53,12 +54,22 @@ const Sticker = () => {
       ? "장애인: 본인"
       : "거주민";
 
+  // 이미지 경로 절대화 + 로딩 실패시 타입별 템플릿으로 폴백
+  const rawImg = sticker?.imageUrl || "Sticker.png";
+  const firstSrc = /^https?:\/\//i.test(rawImg) ? rawImg : asset(rawImg);
+  const [imgSrc, setImgSrc] = useState(firstSrc);
+  const handleImgError = () => {
+    const fallback =
+      STICKER_TEMPLATE?.[sticker?.type || "PREGNANT"] || asset("Sticker.png");
+    if (imgSrc !== fallback) setImgSrc(fallback);
+  };
+
   return (
     <Container>
       <Title />
       <ProfileSection>
         <ProfileTitle>{title}</ProfileTitle>
-        <ProfileImage src={img} alt={title} />
+        <ProfileImage src={imgSrc} alt={title} onError={handleImgError} />
       </ProfileSection>
 
       <InfoBox>
@@ -67,27 +78,17 @@ const Sticker = () => {
         <InfoItem>유효 기간: {expires}</InfoItem>
         <InfoItem>발급 기관: {issuer}</InfoItem>
       </InfoBox>
-      {/* <Navbar /> */}
     </Container>
   );
 };
-
-export default Sticker;
-
-// const Container = styled.div`
-//   width: 100%;
-//   max-width: 600px;
-//   min-height: 100vh;
-//   margin: 0 auto;
-//   display: flex;
-//   flex-direction: column;
-// `;
+export default StickerPage;
 
 const Container = styled.div`
   max-width: 480px;
   margin: 0 auto;
   padding: 16px 16px 40px;
 `;
+
 const TitleBox = styled.h1`
   text-align: center;
   font-size: 24px;
@@ -113,21 +114,12 @@ const ChatbotButton = styled.button`
   padding: 10px 18px;
   font-size: 16px;
   font-weight: bold;
-  color: white;
+  color: #fff;
   background-color: #0078ff;
   border: none;
   border-radius: 8px;
   cursor: pointer;
 `;
-
-// const TitleBox = styled.div`
-//   background-color: #fff;
-//   padding: 20px;
-//   font-size: 24px;
-//   font-weight: bold;
-//   text-align: center;
-//   margin-bottom: 30px;
-// `;
 
 const ProfileSection = styled.div`
   padding: 30px 20px;
@@ -146,13 +138,15 @@ const ProfileTitle = styled.div`
 `;
 
 const ProfileImage = styled.img`
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
   height: auto;
   display: block;
+  border-radius: 12px;
 `;
 
 const InfoBox = styled.div`
-  background-color: white;
+  background-color: #fff;
   padding: 20px;
   margin-top: 10px;
   border-radius: 8px;

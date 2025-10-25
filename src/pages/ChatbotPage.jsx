@@ -1,19 +1,17 @@
 import React, { useEffect, useState, useRef } from "react";
 import ChatBox from "../components/chatbot/ChatBox";
-import { postChat } from "../api/chatbot"; // { content: string } 반환
-import StickerUpload from "../components/Sticker/StickerUpload";
+import { postChat } from "../api/chatbot";
+import { postOcrSticker } from "../api/client";
 
-// ChatBox history -> 서버 포맷으로 변환 (me -> user 정규화 포함)
 const toServerMessages = (history) =>
   history
     .filter((m) => ["user", "assistant", "me"].includes(m.role))
     .map((m) => ({
-      role: m.role === "me" ? "user" : m.role, // me를 user로 치환
+      role: m.role === "me" ? "user" : m.role,
       content: (m.text ?? m.content ?? "").toString(),
     }));
 
-export default function ChatbotPage() {
-  // 뷰포트 기반 동적 높이(최소 520 보장)
+const ChatbotPage = () => {
   const [height, setHeight] = useState(() =>
     Math.max(
       520,
@@ -34,15 +32,60 @@ export default function ChatbotPage() {
         <ChatBox
           title="SafeTag Chatbot"
           height={height}
-          botAvatar="/sefe.png"
-          userAvatar="/tag.png"
-          onSend={async (_text, history) => {
+          onSend={async (_text, history, file) => {
             try {
-              // 중복 요청 취소(빠르게 연타할 때 방어)
               if (abortRef.current) abortRef.current.abort();
               abortRef.current = new AbortController();
 
-              // history에 막 입력한 텍스트가 아직 포함되지 않는 UI라면 보강
+              // 파일이 있으면: OCR+발급
+              if (file) {
+                const jwt =
+                  localStorage.getItem("access_token") ||
+                  localStorage.getItem("jwt") ||
+                  "";
+                if (!jwt) return "로그인이 필요합니다.";
+
+                const carNumber =
+                  localStorage.getItem("carNumber") || undefined; // ⬅ getItem
+                const validDays = 365; // 필요에 따라 730 등으로
+
+                const res = await postOcrSticker(file, jwt, {
+                  carNumber,
+                  validDays,
+                });
+
+                // 응답 유연 처리
+                const payload = res?.sticker || {
+                  stickerId: res?.stickerId || res?.id || "",
+                  type: res?.type || res?.stickerType || "PREGNANT",
+                  carNumber: res?.carNumber || carNumber || "",
+                  issuedAt: res?.issuedAt || new Date().toISOString(),
+                  expiresAt: res?.expiresAt || null,
+                  imageUrl: res?.imageUrl || "/Sticker.png",
+                  issuer: res?.issuer || "SAFETAG",
+                };
+
+                // 저장
+                localStorage.setItem(
+                  "safetag_my_sticker",
+                  JSON.stringify(payload)
+                );
+
+                // 메인 앱으로 발급 완료 이벤트 (팝업/iframe 모두 대응하자)
+                window.opener?.postMessage(
+                  { type: "STICKER_ISSUED", payload },
+                  "*"
+                ); // ⬅ ?.postMessage
+                window.parent?.postMessage(
+                  { type: "STICKER_ISSUED", payload },
+                  "*"
+                ); // ⬅ ?.postMessage
+
+                // 여기서 끝! 아래 일반 대화 로직으로 내려가지 않도록 반환
+                return "서류 접수 및 발급이 완료되었습니다. 스티커 화면으로 이동합니다.";
+              }
+
+              // 파일이 없으면: 일반 대화
               const msgs = toServerMessages(history);
               if (
                 _text &&
@@ -53,13 +96,6 @@ export default function ChatbotPage() {
                 msgs.push({ role: "user", content: _text });
               }
 
-              // (선택) 시스템 지침을 항상 앞에 붙이고 싶다면 주석 해제
-              // msgs.unshift({
-              //   role: "system",
-              //   content:
-              //     "당신은 SafeTag 안내 챗봇입니다. 한글로 간결하고 단계적으로 설명하세요.",
-              // });
-
               const res = await postChat(msgs); // { content }
               return res.content ?? "";
             } catch (e) {
@@ -68,12 +104,9 @@ export default function ChatbotPage() {
             }
           }}
         />
-
-        {/* 파일 업로드로 OCR+스티커 발급 (채팅과 별도 플로우) */}
-        <div style={{ borderTop: "1px solid #eee", paddingTop: 12 }}>
-          <StickerUpload />
-        </div>
       </div>
     </div>
   );
-}
+};
+
+export default ChatbotPage;

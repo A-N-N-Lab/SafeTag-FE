@@ -41,25 +41,23 @@ export default function Navbar({ items = [], showLabels = true }) {
 }
 
 const Bar = styled.nav`
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%); /* 가운데 정렬 */
-  bottom: env(safe-area-inset-bottom, 0);
+  position: sticky;
+  bottom: 0;
   width: 100%;
-  max-width: ${NAV_MAX_WIDTH}px; /* 앱 폭 안에만 보이게 */
   height: ${NAV_HEIGHT}px;
   background: #ffffff;
   display: flex;
   justify-content: center;
   align-items: center;
   box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.06);
-  z-index: 1000;
-  border-top-left-radius: 12px; /* 선택: 모서리 살짝 라운드 */
-  border-top-right-radius: 12px;
+  z-index: 10;
+  padding-bottom: env(safe-area-inset-bottom);
 `;
 
 const Inner = styled.div`
   width: 100%;
+  max-width: ${NAV_MAX_WIDTH}px; /* 카드 폭에 맞추기 */
+  margin: 0 auto;
   display: flex;
   justify-content: space-around;
   align-items: center;

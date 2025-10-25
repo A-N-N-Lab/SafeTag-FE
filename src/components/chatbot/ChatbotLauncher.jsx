@@ -1,23 +1,22 @@
-import React, { useEffect, useRef } from "react";
+import React, {
+  useEffect,
+  useRef,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 
 const STORAGE_KEY = "safetag_my_sticker";
-const CHATBOT_URL = import.meta.env.VITE_CHATBOT_BASE
-  ? `${import.meta.env.VITE_CHATBOT_BASE}/web` // 예: FastAPI의 웹 챗봇 UI 라우트
-  : "http://127.0.0.1:8000/web";
-
-export default function ChatbotLauncher({ onIssued = () => {} }) {
+const CHATBOT_URL = "/chatbot";
+const ChatbotLauncher = forwardRef(function ChatbotLauncher(
+  { onIssued = () => {}, renderButton = true },
+  ref
+) {
   const winRef = useRef(null);
 
   useEffect(() => {
     const onMessage = (e) => {
-      // 보안상 origin 체크를 하려면 아래에 허용 origin을 넣기
-      // if (e.origin !== new URL(CHATBOT_URL).origin) return;
-
       const data = e.data;
       if (!data || typeof data !== "object") return;
-
-      // 챗봇이 발급에 성공하면 아래 형태로 postMessage를 보낸다고 가정
-      // { type: "STICKER_ISSUED", payload: {...} }
       if (data.type === "STICKER_ISSUED" && data.payload) {
         try {
           localStorage.setItem(
@@ -42,7 +41,6 @@ export default function ChatbotLauncher({ onIssued = () => {} }) {
   }, [onIssued]);
 
   const openChat = () => {
-    // 새 창 또는 모달/iframe로 열어도 됨
     if (!winRef.current || winRef.current.closed) {
       winRef.current = window.open(
         CHATBOT_URL,
@@ -54,9 +52,14 @@ export default function ChatbotLauncher({ onIssued = () => {} }) {
     }
   };
 
+  useImperativeHandle(ref, () => ({ open: openChat }), []);
+
+  if (!renderButton) return null;
   return (
     <button onClick={openChat} style={{ width: "100%", height: 44 }}>
       챗봇 열기 (서류 제출/발급)
     </button>
   );
-}
+});
+
+export default ChatbotLauncher;
