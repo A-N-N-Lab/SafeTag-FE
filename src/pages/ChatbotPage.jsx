@@ -37,7 +37,7 @@ const ChatbotPage = () => {
               if (abortRef.current) abortRef.current.abort();
               abortRef.current = new AbortController();
 
-              // 파일이 있으면: OCR+발급
+              // 파일 업로드일 때: OCR + 발급
               if (file) {
                 const jwt =
                   localStorage.getItem("access_token") ||
@@ -45,47 +45,84 @@ const ChatbotPage = () => {
                   "";
                 if (!jwt) return "로그인이 필요합니다.";
 
-                const carNumber =
-                  localStorage.getItem("carNumber") || undefined; // ⬅ getItem
-                const validDays = 365; // 필요에 따라 730 등으로
+                // 1차: 저장된 차량번호로 시도
+                let carNumber = localStorage.getItem("carNumber") || undefined;
 
-                const res = await postOcrSticker(file, jwt, {
-                  carNumber,
-                  validDays,
-                });
+                let res = await postOcrSticker(file, jwt, { carNumber });
 
-                // 응답 유연 처리
-                const payload = res?.sticker || {
-                  stickerId: res?.stickerId || res?.id || "",
-                  type: res?.type || res?.stickerType || "PREGNANT",
-                  carNumber: res?.carNumber || carNumber || "",
-                  issuedAt: res?.issuedAt || new Date().toISOString(),
-                  expiresAt: res?.expiresAt || null,
-                  imageUrl: res?.imageUrl || "/Sticker.png",
-                  issuer: res?.issuer || "SAFETAG",
+                // 차량번호 미검출 실패 시 → 한 번 물어보고 재시도
+                if (
+                  res?.status === "FAILED" &&
+                  /차량번호/.test(res?.reason || "")
+                ) {
+                  const input = window.prompt(
+                    "차량번호를 입력해주세요. (예: 12가3456)"
+                  );
+                  if (!input)
+                    return "차량번호가 없어 발급을 진행할 수 없습니다.";
+                  carNumber = input.trim();
+                  localStorage.setItem("carNumber", carNumber);
+                  res = await postOcrSticker(file, jwt, { carNumber });
+                }
+
+                // 임산부인데 분만예정일을 못 찾은 경우만 한 번 더 질문 후 재시도
+                if (res?.status === "SUCCESS") {
+                  const isPregnant =
+                    (res?.sticker?.type || res?.stickerType) === "PREGNANT";
+                  const dueMissing =
+                    !res?.debug?.dueDateFromForm &&
+                    !res?.debug?.pregDueFromKeywords &&
+                    !res?.debug?.pickedFutureDate;
+
+                  if (isPregnant && dueMissing) {
+                    const due = window.prompt(
+                      "분만예정일을 입력해주세요 (예: 2026-08-22 또는 2026.08.22). 입력을 취소하면 기본 규정으로 발급됩니다."
+                    );
+                    if (due && due.trim()) {
+                      res = await postOcrSticker(file, jwt, {
+                        carNumber,
+                        dueDate: due.trim(),
+                      });
+                    }
+                  }
+                }
+
+                // 최종 분기
+                if (res?.status !== "SUCCESS") {
+                  return (
+                    res?.reason ||
+                    "발급에 실패했습니다. 잠시 후 다시 시도해주세요."
+                  );
+                }
+
+                const s = res.sticker ?? {};
+                const payload = {
+                  stickerId: s.stickerId ?? "",
+                  type: s.type ?? res?.stickerType ?? "PREGNANT",
+                  carNumber: s.carNumber ?? carNumber ?? "",
+                  issuedAt: s.issuedAt ?? new Date().toISOString(),
+                  expiresAt: s.expiresAt ?? null,
+                  imageUrl: s.imageUrl ?? "/Sticker.png",
+                  issuer: s.issuer ?? "SAFETAG",
                 };
 
-                // 저장
                 localStorage.setItem(
                   "safetag_my_sticker",
                   JSON.stringify(payload)
                 );
-
-                // 메인 앱으로 발급 완료 이벤트 (팝업/iframe 모두 대응하자)
                 window.opener?.postMessage(
                   { type: "STICKER_ISSUED", payload },
                   "*"
-                ); // ⬅ ?.postMessage
+                );
                 window.parent?.postMessage(
                   { type: "STICKER_ISSUED", payload },
                   "*"
-                ); // ⬅ ?.postMessage
+                );
 
-                // 여기서 끝! 아래 일반 대화 로직으로 내려가지 않도록 반환
                 return "서류 접수 및 발급이 완료되었습니다. 스티커 화면으로 이동합니다.";
               }
 
-              // 파일이 없으면: 일반 대화
+              // 파일 없으면: 일반 대화
               const msgs = toServerMessages(history);
               if (
                 _text &&
@@ -96,7 +133,7 @@ const ChatbotPage = () => {
                 msgs.push({ role: "user", content: _text });
               }
 
-              const res = await postChat(msgs); // { content }
+              const res = await postChat(msgs);
               return res.content ?? "";
             } catch (e) {
               console.error("[chatbot error]", e);
