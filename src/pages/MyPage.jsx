@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { getMyPage, updateMyPage } from "../api/mypage";
@@ -19,30 +19,30 @@ const Mypage = () => {
   });
 
   const [editMode, setEditMode] = useState({});
+  const fetchedRef = { current: false };
 
   //  마운트 시 사용자 정보 가져오기
   useEffect(() => {
+    if (fetchedRef.current) return; // 이미 호출했으면 스킵
+    fetchedRef.current = true;
+
     const t = localStorage.getItem("access_token");
     if (!t) {
       navigate("/login", { replace: true });
       return;
     }
+
+    const ac = new AbortController(); // (선택) 언마운트 시 취소
     (async () => {
       try {
-        const res = await getMyPage();
-        const d = res.data || {};
-
-        // 1) 백엔드가 vehicleNumber로 줄 수도 있으니 화면 상태의 carNumber로 정규화
+        const res = await getMyPage(); // Authorization은 axios 인터셉터로
+        const d = res;
         const normalizedCar = d.carNumber ?? d.vehicleNumber ?? "";
-
-        // 2) 생년월일 YYYY-MM-DD만 표시
         const birth = d.birthDate ? String(d.birthDate).slice(0, 10) : "";
-
-        // 3) permission 필드가 없으면 "-" 처리
         setUserInfo({
           name: d.name ?? "",
           email: d.email ?? "",
-          gender: d.gender ?? "", // 원본 저장(표시는 아래에서 한글로)
+          gender: d.gender ?? "",
           phoneNum: d.phoneNum ?? "",
           carNumber: normalizedCar,
           birthDate: birth,
@@ -51,7 +51,6 @@ const Mypage = () => {
           permission: d.permission ?? "-",
         });
       } catch (err) {
-        // 401이면 로그인 만료로 간주
         if (err?.response?.status === 401) {
           localStorage.removeItem("access_token");
           navigate("/login", { replace: true });
@@ -61,6 +60,7 @@ const Mypage = () => {
         alert("마이페이지 정보를 불러오는 데 실패했습니다.");
       }
     })();
+    return () => ac.abort();
   }, [navigate]);
 
   const handleChange = (e) => {
@@ -74,13 +74,24 @@ const Mypage = () => {
 
   const handleSubmit = async (e, field) => {
     e.preventDefault();
-    try {
-      // carNumber를 수정하면 API는 vehicleNumber로 보내야 함
-      const payload =
-        field === "carNumber"
-          ? { vehicleNumber: userInfo.carNumber }
-          : { [field]: userInfo[field] };
 
+    // 백엔드가 NOT NULL 로 갖고있는(혹은 자주 쓰는) 필드를 항상 포함
+    const base = {
+      address: userInfo.address || "",
+      birthDate: userInfo.birthDate || "",
+      gender: userInfo.gender || "",
+      name: userInfo.name || "",
+      phoneNum: userInfo.phoneNum || "",
+      username: userInfo.email || "", // 백엔드가 username 쓰면 같이 보냄
+      fcmToken: localStorage.getItem("fcmToken") || undefined,
+    };
+
+    const payload =
+      field === "carNumber"
+        ? { ...base, vehicleNumber: userInfo.carNumber } // ← 맵핑!
+        : { ...base, [field]: userInfo[field] };
+
+    try {
       await updateMyPage(payload);
       alert("수정 완료!");
       toggleEdit(field);
@@ -97,7 +108,7 @@ const Mypage = () => {
 
   const topRows = [
     { key: "name", label: "이름", editable: false },
-    { key: "email", label: "이메일", editable: false },
+    // { key: "email", label: "이메일", editable: false },
     { key: "phoneNum", label: "전화번호", editable: false },
   ];
 
