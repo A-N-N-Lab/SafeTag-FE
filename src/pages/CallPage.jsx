@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useParams } from "react-router-dom";
 
 export default function CallPage() {
-  const { sessionId } = useParams(); // /call/:sessionId
+  const [searchParams] = useSearchParams();
+  const { sessionId: sidFromPath } = useParams();
+  const sessionId = searchParams.get("sid") || sidFromPath; // 둘 중 하나
   const navigate = useNavigate();
 
   const localVideoRef = useRef(null);

@@ -70,7 +70,9 @@ self.addEventListener("notificationclick", (event) => {
     ""
   ).trim();
 
-  const urlToOpen = sessionId ? `/call/${sessionId}` : "/main";
+  const urlToOpen = sessionId
+    ? `/call?sid=${encodeURIComponent(sessionId)}`
+    : "/main";
 
   event.waitUntil(
     (async () => {
