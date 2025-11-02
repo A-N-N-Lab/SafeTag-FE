@@ -85,16 +85,17 @@ export default function ScanResultPage() {
           if (view.status === 200 && alive) {
             // 응답 필드명은 서버에 맞춰 매핑
             const d = view.data || {};
+            const isAdminMode = d.mode === "ADMIN" || d.mode === "OWNER";
             setProfile({
-              vehicleNumber: d.vehicleNumber ?? d.carNumber ?? "",
-              ownerNameMasked: d.ownerNameMasked ?? d.maskedName ?? "",
-              apartment: d.apartment ?? d.address ?? "",
+              vehicleNumber: d.vehicleMask ?? "",
+              ownerNameMasked: isAdminMode ? d.admin?.ownerMask ?? "" : "",
+              apartment: isAdminMode ? d.admin?.address ?? "" : "",
               stickers: {
-                resident: !!(d.stickers?.resident ?? d.resident),
-                disabled: !!(d.stickers?.disabled ?? d.disabled),
-                pregnancy: !!(d.stickers?.pregnancy ?? d.pregnancy),
+                resident: !!(isAdminMode ? d.admin?.resident : false),
+                disabled: !!(isAdminMode ? d.admin?.disabled : false),
+                pregnancy: !!(isAdminMode ? d.admin?.maternity : false),
               },
-              note: d.note ?? "",
+              note: isAdminMode ? d.admin?.note ?? "" : "",
             });
           }
         }
@@ -172,7 +173,7 @@ export default function ScanResultPage() {
       </Card>
 
       {/* 스티커 / 역할 분기 */}
-      {role === "admin" ? (
+      {profile.note !== "" || Object.values(profile.stickers).some(Boolean) ? (
         <Card>
           <SectionTitle>인증/스티커</SectionTitle>
           {stickerActive ? (

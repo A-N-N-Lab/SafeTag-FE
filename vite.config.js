@@ -24,11 +24,20 @@ export default defineConfig({
   server: {
     host: true, // 0.0.0.0
     port: 5173,
+    allowedHosts: ["grammatical-krystle-unimpressively.ngrok-free.dev"],
+    hmr: {
+      host: "grammatical-krystle-unimpressively.ngrok-free.dev",
+      protocol: "wss",
+      clientPort: 443,
+    },
     proxy: {
       // REST API -> 스프링(로컬 8080)으로 프록시
       "/api": {
-        target: "http://172.20.10.5:8080", // 또는 http://localhost:8080
+        target: "http://localhost:8080",
+        //"http://172.20.10.5:8080", // 또는 http://localhost:8080
+
         changeOrigin: true,
+        ws: true,
         secure: false,
       },
       // (옵션) 시그널링 웹소켓도 프록시가 필요하면

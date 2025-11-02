@@ -10,8 +10,8 @@ export async function startCall(
   callerUserId?: number
 ): Promise<StartCallResponse> {
   const { data } = await api.post("/api/calls/start", {
-    qrUuid,
-    callerUserId,
+    qrUuid: qrUuid,
+    callerUserId: callerUserId,
   });
   return data;
 }
